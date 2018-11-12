@@ -5,6 +5,8 @@ App Goals
 - set/restore database backups
 - connect to multiple databases
 - run raw SQL queries
+- stores history of sql queries ran
+- stores history of connections
 
 Lesser App Goals
 - visualize tables in a nice diagram
@@ -13,3 +15,5 @@ Developer Goals
 - a single page app
 - customize css using Bulma
 - webpack process and minify assets
+- css animations between page transitions
+- babel for compatibility
