@@ -2,23 +2,14 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Hello Bulma!</title>
+    <title>PG Web Client</title>
+    <link rel="shortcut icon" href="/img/favicon.png" type="image/png">
+    
     <link rel="stylesheet" href="/libs/bulma/bulma.min.css">
-    <style>
-      #sidebar {
-        width: 250px;
-        padding: 0rem .75rem;
-      }
-      #sidebar aside .menu-list a {
-        padding: .25em .25em;
-      }
-      #sidebar aside .menu-list ul {
-        margin: .25em;
-      }
-      #navbar {
-        padding: 0.75rem 0rem;
-      }
-    </style>
+    <link rel="stylesheet" href="/css/index.css">
+    <link rel="stylesheet" href="/css/loading.css">
+
+    <script defer src="/js/index.js"></script>
   </head>
   <body>
     <!-- Nav Bar -->
@@ -40,43 +31,30 @@
         </div>
       </div>
     </nav>
-    <div class="columns is-gapless content-container">
-      <div class="column is-narrow">
+    <div id="mainContainer" class="columns is-gapless content-container">
+      <!-- CSS taper effect near the bottom of side bar to know there is more scroll-->
+      <div class="column is-narrow" style="overflow-y: auto">
         <!-- Side Bar -->
         <div id="sidebar">
           <aside class="menu">
             <p class="menu-label">Databases</p>
-            <ul class="menu-list">
-              <li><a>almondbase</a></li>
-              <li>
-                <a class="is-active">dashwatch</a>
-                <ul>
-                  <li><a>analytics</a></li>
-                  <li><a>audit</a></li>
-                  <li><a>equipment</a></li>
-                  <li><a>files</a></li>
-                  <li><a>queries</a></li>
-                  <li><a>reports</a></li>
-                  <li><em><a>public</a></em></li>
-                  <li><em><a>pg_toast</a></em></li>
-                  <li><em><a>pg_toast_temp_1</a></em></li>
-                  <li><em><a>pg_temp_1</a></em></li>
-                </ul>
-              </li>
-              <li><a>testdb</a></li>
-            </ul>
+            <div id="pgSchemas" >
+              <div class="lds-dual-ring"></div>
+              <ul class="menu-list"></ul>
+            </div>
             <p class="menu-label">Users</p>
-            <ul class="menu-list">
-              <li><a>almondbase</a></li>
-              <li><a>joeschmo</a></li>
-              <li><a>testdb</a></li>
-            </ul>
+            <div id="pgUsers">
+              <div class="lds-dual-ring"></div>
+              <ul class="menu-list"></ul>
+            </div>
           </aside>
         </div>
       </div>
-      <div id="maincontent" class="column section doc-content">
-        
+      <div id="mainContent" class="column section doc-content">
+        <div class="lds-dual-ring"></div>
       </div>
     </div>
   </body>
+  <template id="menuItem--normal"><li><a class="menuItemLink"></a></li></template>
+  <template id="menuItem--emphasized"><li><em><a class="menuItemLink"></a></em></li></template>
 </html>

@@ -1,0 +1,25 @@
+html {
+  overflow: hidden;
+}
+#sidebar {
+  width: 250px;
+  padding: 0rem .75rem;
+}
+#sidebar aside .menu-list a {
+  padding: .25em .25em;
+}
+#sidebar aside .menu-list ul {
+  margin: .25em;
+}
+#navbar {
+  padding: 0.75rem 0rem;
+}
+#mainContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#mainContainer {
+  height: calc(100vh - 64px);
+  margin-bottom: 0px;
+}

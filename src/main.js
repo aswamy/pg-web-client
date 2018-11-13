@@ -18,9 +18,7 @@ app.use('/libs/bulma/', express.static(path.join(__dirname, '../node_modules/bul
 app.post('/api/connections', function(req, res) {
 
   sessionManager.connect(req.body)
-    .then((result) => {
-      res.send(result);      
-    })
+    .then((result) => res.send(result))
     .catch(() => {
       res.status(500).end();
     });
@@ -38,11 +36,26 @@ app.delete('/api/connections/:id', function(req, res) {
   
 });
 
-app.get('/api/connections/:id/schemas', function(req, res) {
-  //client.query('SELECT schema_name FROM information_schema.schemata', (err, res) => {
-  //console.log(err, res);
-  //client.end();
-  //});
+app.get('/api/connections/:id/schemas', async function(req, res) {
+
+  const client = sessionManager.get(req.params.id);
+
+  /*
+  * TODO: Use information_schema.tables and information_schema.routines
+  * so we don't need to lazy load everything pointlessly
+  */
+  const result = await client.query('SELECT schema_name FROM information_schema.schemata ORDER BY schema_name');
+
+  res.send(result.rows.map(row => row.schema_name));
+});
+
+app.get('/api/connections/:id/users', async function(req, res) {
+
+  const client = sessionManager.get(req.params.id);
+
+  const result = await client.query('SELECT usename FROM pg_user ORDER BY usename');
+
+  res.send(result.rows.map(row => row.usename));
 });
 
 app.listen(PORT, () => console.log(`App started http://localhost:${PORT}`));

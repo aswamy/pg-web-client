@@ -21,7 +21,7 @@ class PGSessionManager {
       });
   }
   
-  destroy(id) {
+  disconnect(id) {
     
     if(!this.sessions.hasOwnProperty(id)) {
       return Promise.reject();
@@ -33,7 +33,7 @@ class PGSessionManager {
   get(id) {
 
     if(!this.sessions.hasOwnProperty(id)) {
-      throw Exception();
+      throw Error(`Session ${id} does not exist.`);
     }
 
     return this.sessions[id];
