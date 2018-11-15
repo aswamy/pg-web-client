@@ -13,7 +13,7 @@
   </head>
   <body>
     <!-- Nav Bar -->
-    <nav id="navbar">
+    <nav id="navbar is-link" class="navbar is-light">
       <div class="navbar-menu">
         <div class="navbar-start">
           <span class="navbar-item">Alok Connection (127.0.0.1:5432)</span>
@@ -33,9 +33,9 @@
     </nav>
     <div id="mainContainer" class="columns is-gapless content-container">
       <!-- CSS taper effect near the bottom of side bar to know there is more scroll-->
-      <div class="column is-narrow" style="overflow-y: auto">
-        <!-- Side Bar -->
-        <div id="sidebar">
+      <!-- Side Bar -->
+      <div id="sidebar" class="column is-narrow">
+        <div>
           <aside class="menu">
             <p class="menu-label">Databases</p>
             <div id="pgSchemas" >
@@ -51,10 +51,25 @@
         </div>
       </div>
       <div id="mainContent" class="column section doc-content">
-        <div class="lds-dual-ring"></div>
+        <div>
+          <div class="tabs is-boxed">
+            <ul>
+              <li class="is-active">
+                <a>SQL Query</a>
+              </li>
+              <li>
+                  <a id="newTabLink">+</a>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <textarea></textarea>
+          </div>
+        </div>
       </div>
     </div>
   </body>
   <template id="menuItem--normal"><li><a class="menuItemLink"></a></li></template>
   <template id="menuItem--emphasized"><li><em><a class="menuItemLink"></a></em></li></template>
+  <template id="tabItem"><li><a></a></li></template>
 </html>
