@@ -7,16 +7,24 @@ html {
 }
 #sidebar > div {
   width: 250px;
-  font-size: 0.9rem;
 }
 #sidebar > div, #mainContent > div {
   padding: .75rem;
+}
+#sidebar aside.menu {
+  font-size: 0.9rem;
+}
+#sidebar aside.menu .menu-label {
+  margin-bottom: 0.85em;
 }
 #sidebar aside .menu-list a {
   padding: .25em .25em;
 }
 #sidebar aside .menu-list ul {
   margin: .25em;
+}
+#pgSchemas {
+  margin-bottom: 1.5em;
 }
 #mainContent .tabs {
   font-size: 0.9rem;

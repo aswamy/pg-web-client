@@ -8,10 +8,10 @@ async function main() {
   const connectionResponse = await fetch(connectionAPI, {
     method: 'POST',
     body: JSON.stringify({
-        user: 'mw5',
-        host: 'localhost',
-        database: 'mw5',
-        password: 'mw5',
+        user: _USER,
+        host: _HOST,
+        database: _DATABASE,
+        password: _PASSWORD,
         port: 5432,
         statement_timeout: 90000,
       }),
@@ -45,10 +45,10 @@ async function refreshUsers(id) {
 
     menuItemElement.querySelectorAll('a')[0].textContent = user;
 
-    document.querySelector("#pgUsers ul").appendChild(menuItemElement);
+    document.querySelector('#pgUsers ul').appendChild(menuItemElement);
   }
 
-  document.querySelector("#pgUsers div").style.display = 'none';
+  document.querySelector('#pgUsers div').style.display = 'none';
 }
 
 async function refreshSchemas(id) {
@@ -61,34 +61,40 @@ async function refreshSchemas(id) {
 
   const schemas = await schemasResponse.json();
 
-  let defaultSchemas = [];
-  let createdSchemas = [];
+  let defaultSchemaNames = [];
+  let createdSchemaNames = [];
 
-  for(let schema of schemas) {
-    if(schema.startsWith('pg_')) {
-      defaultSchemas.push(schema);
+  const sortedSchemaNames = Object.keys(schemas).sort();
+
+  for(let schemaName of sortedSchemaNames) {
+    if(schemaName.startsWith('pg_')) {
+      defaultSchemaNames.push(schemaName);
     } else {
-      createdSchemas.push(schema);
+      createdSchemaNames.push(schemaName);
     }
   }
 
-  for(let schema of createdSchemas) {
+  for(let schema of createdSchemaNames) {
     let menuItemElement = document.importNode(normalMenuItemTemplate.content, true);
 
     menuItemElement.querySelectorAll('a')[0].textContent = schema;
 
-    document.querySelector("#pgSchemas ul").appendChild(menuItemElement);
+    let submenu = document.createElement('ul');
+    menuItemElement.appendChild(submenu);
+
+    for(let table of schemas[schema].table) {
+      
+      let submenuItemElement = document.importNode(normalMenuItemTemplate.content, true);
+
+      submenuItemElement.querySelectorAll('a')[0].textContent = table;
+
+      submenu.appendChild(submenuItemElement);
+    }
+
+    document.querySelector('#pgSchemas ul').appendChild(menuItemElement);
   }
 
-  for(let schema of defaultSchemas) {
-    let menuItemElement = document.importNode(emphasizedMenuItemTemplate.content, true);
-
-    menuItemElement.querySelectorAll('a')[0].textContent = schema;
-
-    document.querySelector("#pgSchemas ul").appendChild(menuItemElement);
-  }
-
-  document.querySelector("#pgSchemas div").style.display = 'none';
+  document.querySelector('#pgSchemas div').style.display = 'none';
 }
 
 main();

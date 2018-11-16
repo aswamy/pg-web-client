@@ -44,9 +44,28 @@ app.get('/api/connections/:id/schemas', async function(req, res) {
   * TODO: Use information_schema.tables and information_schema.routines
   * so we don't need to lazy load everything pointlessly
   */
-  const result = await client.query('SELECT schema_name FROM information_schema.schemata ORDER BY schema_name');
+  //const result = await client.query('SELECT schema_name FROM information_schema.schemata ORDER BY schema_name');
 
-  res.send(result.rows.map(row => row.schema_name));
+  const result = await client.query(`
+    SELECT table_schema as schema, table_name as name, 'table' as type FROM information_schema.tables WHERE table_type = 'BASE TABLE'
+    UNION
+    SELECT routine_schema as schema, specific_name as name, 'function' as type FROM information_schema.routines
+    ORDER BY schema, type, name
+  `);
+
+  res.send(result.rows.reduce(function(groups, item) {
+
+    if(!groups.hasOwnProperty(item.schema)) {
+      groups[item.schema] = {
+        function: [],
+        table: []
+      }
+    }
+
+    groups[item.schema][item.type].push(item.name);
+
+    return groups;
+  }, {}));
 });
 
 app.get('/api/connections/:id/users', async function(req, res) {
