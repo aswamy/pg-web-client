@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/libs/bulma/bulma.min.css">
     <link rel="stylesheet" href="/css/index.css">
     <link rel="stylesheet" href="/css/loading.css">
+    <link rel="stylesheet" href="/css/animate.css">
     <script>
       _HOST = 'localhost';
       _DATABASE = 'mw5';
@@ -18,7 +19,7 @@
   </head>
   <body>
     <!-- Nav Bar -->
-    <nav id="navbar is-link" class="navbar is-light">
+    <nav id="navbar is-link" class="navbar is-link">
       <div class="navbar-menu">
         <div class="navbar-start">
           <span class="navbar-item">Alok Connection (127.0.0.1:5432)</span>
@@ -42,15 +43,15 @@
       <div id="sidebar" class="column is-narrow">
         <div>
           <aside class="menu">
-            <p class="menu-label">Databases</p>
+            <p class="menu-label">Schemas</p>
             <div id="pgSchemas" >
               <div class="lds-dual-ring"></div>
-              <ul class="menu-list"></ul>
+              <ul class="menu-list animated fadeIn"></ul>
             </div>
             <p class="menu-label">Users</p>
             <div id="pgUsers">
               <div class="lds-dual-ring"></div>
-              <ul class="menu-list"></ul>
+              <ul class="menu-list animated fadeIn"></ul>
             </div>
           </aside>
         </div>

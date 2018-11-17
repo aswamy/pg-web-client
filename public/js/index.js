@@ -74,24 +74,36 @@ async function refreshSchemas(id) {
     }
   }
 
-  for(let schema of createdSchemaNames) {
-    let menuItemElement = document.importNode(normalMenuItemTemplate.content, true);
-
-    menuItemElement.querySelectorAll('a')[0].textContent = schema;
-
-    let submenu = document.createElement('ul');
-    menuItemElement.appendChild(submenu);
-
-    for(let table of schemas[schema].table) {
+  for(let schemaName of createdSchemaNames) {
+    
+    for(let pgType of Object.keys(schemas[schemaName])) {
       
-      let submenuItemElement = document.importNode(normalMenuItemTemplate.content, true);
+      let menuItemElement = document.importNode(normalMenuItemTemplate.content, true);
 
-      submenuItemElement.querySelectorAll('a')[0].textContent = table;
+      menuItemElement.querySelectorAll('a')[0].textContent = schemaName;
+      menuItemElement.querySelectorAll('a')[0].className += ' is-link';
 
-      submenu.appendChild(submenuItemElement);
+      let submenu = document.createElement('ul');
+
+      let submenuName = document.createElement('p');
+      submenuName.className = 'menu-label';
+      submenuName.textContent = `${pgType} (${schemas[schemaName][pgType].length})`;
+
+      submenu.appendChild(submenuName);
+
+      menuItemElement.querySelectorAll('li')[0].appendChild(submenu);
+
+      for(let type of schemas[schemaName][pgType]) {
+        
+        let submenuItemElement = document.importNode(normalMenuItemTemplate.content, true);
+
+        submenuItemElement.querySelectorAll('a')[0].textContent = type;
+
+        submenu.appendChild(submenuItemElement);
+      }
+
+      document.querySelector('#pgSchemas ul').appendChild(menuItemElement);
     }
-
-    document.querySelector('#pgSchemas ul').appendChild(menuItemElement);
   }
 
   document.querySelector('#pgSchemas div').style.display = 'none';

@@ -40,16 +40,10 @@ app.get('/api/connections/:id/schemas', async function(req, res) {
 
   const client = sessionManager.get(req.params.id);
 
-  /*
-  * TODO: Use information_schema.tables and information_schema.routines
-  * so we don't need to lazy load everything pointlessly
-  */
-  //const result = await client.query('SELECT schema_name FROM information_schema.schemata ORDER BY schema_name');
-
   const result = await client.query(`
     SELECT table_schema as schema, table_name as name, 'table' as type FROM information_schema.tables WHERE table_type = 'BASE TABLE'
     UNION
-    SELECT routine_schema as schema, specific_name as name, 'function' as type FROM information_schema.routines
+    SELECT routine_schema as schema, routine_name as name, 'function' as type FROM information_schema.routines
     ORDER BY schema, type, name
   `);
 

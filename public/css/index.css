@@ -15,7 +15,7 @@ html {
   font-size: 0.9rem;
 }
 #sidebar aside.menu .menu-label {
-  margin-bottom: 0.85em;
+  margin: 1em 0em 0.5em 0em;
 }
 #sidebar aside .menu-list a {
   padding: .25em .25em;
