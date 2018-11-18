@@ -76,13 +76,12 @@ async function refreshSchemas(id) {
 
   for(let schemaName of createdSchemaNames) {
     
+    let menuItemElement = document.importNode(normalMenuItemTemplate.content, true);
+
+    menuItemElement.querySelectorAll('a')[0].textContent = schemaName;
+
     for(let pgType of Object.keys(schemas[schemaName])) {
       
-      let menuItemElement = document.importNode(normalMenuItemTemplate.content, true);
-
-      menuItemElement.querySelectorAll('a')[0].textContent = schemaName;
-      menuItemElement.querySelectorAll('a')[0].className += ' is-link';
-
       let submenu = document.createElement('ul');
 
       let submenuName = document.createElement('p');
@@ -101,9 +100,9 @@ async function refreshSchemas(id) {
 
         submenu.appendChild(submenuItemElement);
       }
-
-      document.querySelector('#pgSchemas ul').appendChild(menuItemElement);
     }
+
+    document.querySelector('#pgSchemas ul').appendChild(menuItemElement);
   }
 
   document.querySelector('#pgSchemas div').style.display = 'none';
