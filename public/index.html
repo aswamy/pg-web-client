@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="/css/loading.css">
     <link rel="stylesheet" href="/css/animate.css">
     <script>
-      _HOST = 'localhost';
+      _HOST = '127.0.0.1';
       _DATABASE = 'mw5';
       _USER = 'mw5';
       _PASSWORD = 'mw5';
@@ -19,10 +19,13 @@
   </head>
   <body>
     <!-- Nav Bar -->
-    <nav id="navbar is-link" class="navbar is-link">
+    <nav class="navbar is-link">
       <div class="navbar-menu">
         <div class="navbar-start">
-          <span class="navbar-item">Alok Connection (127.0.0.1:5432)</span>
+          <div id="connection" class="navbar-item">
+            <span class="connectionName">Example Connection</span>
+            <span class="connectionAddress animated bounceInLeft faster">&nbsp;&nbsp;&nbsp;127.0.0.1:5432</span>
+          </div>
         </div>
         <div class="navbar-end">
           <a class="navbar-item">Settings</a>
@@ -42,12 +45,14 @@
       <!-- Side Bar -->
       <div id="sidebar" class="column is-narrow">
         <!-- TODO this should be an overlay, not an entire bar taking up space -->
+        <!--
         <div id="sidebarOptions" class="columns">
           <div class="column is-3 is-offset-9">
             <img class="icon is-small" src="/svg/reload.svg" alt="reload">
             <img class="icon is-small" src="/svg/collapse-down.svg" alt="collapse-down">
           </div>
         </div>
+        -->
         <div>
           <aside class="menu">
             <p class="menu-label">Schemas</p>
@@ -65,8 +70,11 @@
       </div>
       <div id="mainContent" class="column section doc-content">
         <div>
-          <div class="tabs is-boxed">
+          <div id="mainContent-tabs" class="tabs is-boxed">
             <ul>
+              <li>
+                <a>Details</a>
+              </li>
               <li class="is-active">
                 <a>SQL Query</a>
               </li>
@@ -75,8 +83,10 @@
               </li>
             </ul>
           </div>
-          <div>
-            <textarea></textarea>
+          <div id="mainContent-selectedTab">
+            <div class="sqlQueryTabMenu"></div>
+            <textarea class="sqlQueryTabEditor"></textarea>
+            <div class="sqlQueryTabResults"></div>
           </div>
         </div>
       </div>
