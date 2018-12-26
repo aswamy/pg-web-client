@@ -2,15 +2,22 @@
   "name": "pg-web-client",
   "version": "1.0.0",
   "description": "",
-  "main": "main.js",
+  "main": "src/main.js",
   "scripts": {
-    "start": "node src/main.js"
+    "webpack": "webpack --config webpack.conf.js",
+    "start": "npm run-script webpack && node src/main.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@polymer/lit-element": "^0.6.5",
+    "@webcomponents/webcomponentsjs": "^2.2.1",
     "bulma": "^0.7.2",
     "express": "^4.16.4",
     "pg": "^7.6.1"
+  },
+  "devDependencies": {
+    "webpack": "^4.28.2",
+    "webpack-cli": "^3.1.2"
   }
 }

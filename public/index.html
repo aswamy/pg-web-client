@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="/css/index.css">
     <link rel="stylesheet" href="/css/loading.css">
     <link rel="stylesheet" href="/css/animate.css">
+
+    <!-- We need to serve this for compatibility -->
+    <!--script src="./node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>-->
+    <script type="module" src="./dist/components.js"></script>
     <script>
       _HOST = '127.0.0.1';
       _DATABASE = 'mw5';
@@ -83,11 +87,7 @@
               </li>
             </ul>
           </div>
-          <div id="mainContent-selectedTab">
-            <div class="sqlQueryTabMenu"></div>
-            <textarea class="sqlQueryTabEditor"></textarea>
-            <div class="sqlQueryTabResults"></div>
-          </div>
+          <sql-query-tab></sql-query-tab>
         </div>
       </div>
     </div>
