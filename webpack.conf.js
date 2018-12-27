@@ -5,5 +5,6 @@ module.exports = {
   output : {
     filename :  'components.js',
   },
-  mode : 'development'
+  mode : 'development',
+  watch: true
 };

@@ -5,7 +5,7 @@
   "main": "src/main.js",
   "scripts": {
     "webpack": "webpack --config webpack.conf.js",
-    "start": "npm run-script webpack && node src/main.js"
+    "start": "concurrently \"npm run-script webpack\" \"node src/main.js\""
   },
   "author": "",
   "license": "ISC",
@@ -17,6 +17,7 @@
     "pg": "^7.6.1"
   },
   "devDependencies": {
+    "concurrently": "^4.1.0",
     "webpack": "^4.28.2",
     "webpack-cli": "^3.1.2"
   }

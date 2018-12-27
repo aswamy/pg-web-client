@@ -71,9 +71,9 @@ html {
 .menu-label {
   user-select: none;
 }
-
-
-sql-query-tab {
+.mainContent-viewableTab {
   display: flex;
+}
+.mainContent-viewableTab[visible] {
   flex-grow: 1;
 }
