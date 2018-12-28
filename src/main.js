@@ -16,13 +16,51 @@ app.use('/libs/bulma/', express.static(path.join(__dirname, '../node_modules/bul
   maxAge: '1d'
 }));
 
+/*
+* TODO: REMOVE
+* 
+* Temporary method used to make connections
+* during development; This is to prevent
+* re-connect after every page refresh
+*/
+let ESTABLISHED_CONNECTION = null;
+
+async function establishConnection() {
+
+  ESTABLISHED_CONNECTION = await sessionManager.connect(
+    {
+      host: 'localhost',
+      user: 'test',
+      password: 'test',
+      database: 'testdb',
+      port: 5432,
+      statement_timeout: 90000,
+    }
+  );
+}
+
+/*
+* REQUEST PAYLOAD:
+* {
+*   user: [String],
+*   host: [String],
+*   database: [String],
+*   password: [String],
+*   port: [Number],
+*   statement_timeout: [Number]
+* }
+*/
 app.post('/api/connections', function(req, res) {
 
+  res.send(ESTABLISHED_CONNECTION);
+  
+  /*
   sessionManager.connect(req.body)
     .then((result) => res.send(result))
     .catch(() => {
       res.status(500).end();
     });
+  */
 });
 
 app.get('/api/connections/:id', function(req, res) {
@@ -72,4 +110,43 @@ app.get('/api/connections/:id/users', async function(req, res) {
   res.send(result.rows.map(row => row.usename));
 });
 
-app.listen(PORT, () => console.log(`App started http://localhost:${PORT}`));
+/*
+* REQUEST PAYLOAD:
+* {
+*    query: [String]
+* }
+*/
+app.post('/api/connections/:id/query', function(req, res) {
+
+  const client = sessionManager.get(req.params.id);
+
+  /*
+  * TODO: Instead of returning the result
+  * we should be returning a handle to the query
+  * so that we can manually kill it incase it takes
+  * too long
+  * 
+  * TODO: Use PG Cursor so we can page results
+  */
+  client.query(req.body.query)
+    .then(result => {
+      res.send({
+        rows: result.rows,
+        fields: result.fields
+      });
+    })
+    .catch(errResponse => {
+      res.status(400);
+      res.send({
+        error: errResponse.toString() || "Could not run SQL command"
+      });
+    });
+});
+
+establishConnection()
+  .then(() => {
+    app.listen(PORT, () => console.log(`App started http://localhost:${PORT}`));
+  })
+  .catch(error=> {
+    console.log(error);
+  });

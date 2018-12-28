@@ -28,6 +28,10 @@ async function main() {
 
   refreshUsers(connection.id);
   refreshSchemas(connection.id);
+
+  document.querySelectorAll('.mainContent-viewableTab').forEach(domElement => {
+    domElement.setAttribute('sessionId', connection.id);
+  });
 }
 
 async function refreshUsers(id) {
