@@ -17,26 +17,26 @@ class SqlQueryTab extends LitElement {
 
   static get properties() {
     return {
-      visible: { type: Boolean },
+      isVisible: { type: Boolean, attribute: 'is-visible' },
       sessionId: { type: String }
     }
   }
 
   _assignHotKeys() {
     hotkeys('ctrl+shift+enter', (event, handler) => {
-      if(this.visible) {
+      if(this.isVisible) {
         event.preventDefault();
         this._onRun();
       }
     });
     hotkeys('ctrl+s', (event, handler) => {
-      if(this.visible) {
+      if(this.isVisible) {
         event.preventDefault();
         //TODO: handle save of sql file
       }
     });
     hotkeys('ctrl+o', (event, handler) => {
-      if(this.visible) {
+      if(this.isVisible) {
         event.preventDefault();
         //TODO: handle open of sql file
     }
@@ -45,8 +45,8 @@ class SqlQueryTab extends LitElement {
 
   render() {
 
-    if(!this.visible) {
-      return;
+    if(!this.isVisible) {
+      return html``;
     }
 
     let resultsTable = null;
@@ -86,13 +86,13 @@ class SqlQueryTab extends LitElement {
       <div class="sqlQueryTabWrapper">
         <div class="sqlQueryTabMenu">
           <div class="sqlQueryTabMenuItemsLeft">
-            <i title="Run" class="material-icons" @click="${this._onRun}">play_arrow</i>
-            <i title="Stop" class="material-icons" disabled>stop</i>
-            <i title="Save" class="material-icons">save</i>
-            <i title="Open" class="material-icons">folder_open</i>
+            <img class="sqlQueryTabMenuItem" title="Run" src="./icons/run.svg" alt="image" @click="${this._onRun}">
+            <img class="sqlQueryTabMenuItem" title="Stop" src="./icons/stop.svg" alt="image" disabled>
+            <img class="sqlQueryTabMenuItem" title="Save" src="./icons/save.svg" alt="image">
+            <img class="sqlQueryTabMenuItem" title="Open" src="./icons/open.svg" alt="image">
           </div>
           <div class="sqlQueryTabMenuItemsRight">
-            <i title="History" class="material-icons">storage</i>
+            <img class="sqlQueryTabMenuItem" title="History" src="./icons/history.svg">
           </div>
         </div>
         <textarea style="flex-grow:${this._editorTextAreaSize}" @click="${this._onTextAreaFocus.bind(this, 4, 1)}" class="sqlQueryTabEditor"></textarea>
@@ -163,7 +163,6 @@ class SqlQueryTab extends LitElement {
   get htmlStyle() {
     return html`
       <link rel="stylesheet" href="/libs/bulma/bulma.min.css">
-      <link rel="stylesheet" href="/css/material.css">
       <style>
       .sqlQueryTabMenu {
         display: flex;
@@ -172,7 +171,7 @@ class SqlQueryTab extends LitElement {
         border-style: solid;
         border-width: 1px 1px 0px 1px;
       }
-      .sqlQueryTabMenu .material-icons {
+      .sqlQueryTabMenu .sqlQueryTabMenuItem {
         padding: 0.25rem 0.5rem;
         border-color: #dbdbdb;
         border-style: solid;
@@ -180,16 +179,16 @@ class SqlQueryTab extends LitElement {
         cursor: pointer;
         user-select: none;
       }
-      .sqlQueryTabMenu .material-icons:first-child {
+      .sqlQueryTabMenu .sqlQueryTabMenuItem:first-child {
         border-width: 0px 1px 0px 1px;
       }
-      .material-icons:hover {
+      .sqlQueryTabMenuItem:hover {
         background-color: #dbdbdb;
       }
-      .material-icons:active {
+      .sqlQueryTabMenuItem:active {
         color: #3273dc;
       }
-      .material-icons[disabled] {
+      .sqlQueryTabMenuItem[disabled] {
         color: #dbdbdb !important;
         background-color: inherit !important;
         pointer-events: none;

@@ -3,6 +3,8 @@ const connectionAPI = '/api/connections';
 const normalMenuItemTemplate = document.querySelector('#menuItem--normal');
 const emphasizedMenuItemTemplate = document.querySelector('#menuItem--emphasized');
 
+let SESSION_ID = null;
+
 async function main() {
   
   const connectionResponse = await fetch(connectionAPI, {
@@ -26,11 +28,13 @@ async function main() {
 
   const connection = await connectionResponse.json();
 
-  refreshUsers(connection.id);
-  refreshSchemas(connection.id);
+  SESSION_ID = connection.id;
+
+  refreshUsers(SESSION_ID);
+  refreshSchemas(SESSION_ID);
 
   document.querySelectorAll('.mainContent-viewableTab').forEach(domElement => {
-    domElement.setAttribute('sessionId', connection.id);
+    domElement.sessionId = SESSION_ID;
   });
 }
 
@@ -112,5 +116,22 @@ async function refreshSchemas(id) {
   document.querySelector('#pgSchemas div').style.display = 'none';
 }
 
-main();
+function setupHotkeys() {
 
+  document.querySelector('#newTabLink').onclick = function() {
+
+    let existingTabs = document.querySelectorAll('.mainContent-viewableTab').forEach(element => {
+      element.removeAttribute('is-visible');
+    });
+    
+    let sqlQueryTabElement = document.createElement('sql-query-tab');
+    sqlQueryTabElement.sessionId = SESSION_ID;
+    sqlQueryTabElement.className = 'mainContent-viewableTab';
+    sqlQueryTabElement.setAttribute('is-visible', '');
+
+    document.querySelector('#mainContent > div').appendChild(sqlQueryTabElement);
+  }
+}
+
+main();
+setupHotkeys();

@@ -74,6 +74,6 @@ html {
 .mainContent-viewableTab {
   display: flex;
 }
-.mainContent-viewableTab[visible] {
+.mainContent-viewableTab[is-visible] {
   flex-grow: 1;
 }
