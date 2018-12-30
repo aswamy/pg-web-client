@@ -11,6 +11,8 @@ class SqlQueryTab extends LitElement {
 
     this.sqlError = null;
     this.sqlResult = null;
+
+    this._assignHotKeys();
   }
 
   static get properties() {
@@ -18,6 +20,27 @@ class SqlQueryTab extends LitElement {
       visible: { type: Boolean },
       sessionId: { type: String }
     }
+  }
+
+  _assignHotKeys() {
+    hotkeys('ctrl+shift+enter', (event, handler) => {
+      if(this.visible) {
+        event.preventDefault();
+        this._onRun();
+      }
+    });
+    hotkeys('ctrl+s', (event, handler) => {
+      if(this.visible) {
+        event.preventDefault();
+        //TODO: handle save of sql file
+      }
+    });
+    hotkeys('ctrl+o', (event, handler) => {
+      if(this.visible) {
+        event.preventDefault();
+        //TODO: handle open of sql file
+    }
+    });
   }
 
   render() {
@@ -30,7 +53,7 @@ class SqlQueryTab extends LitElement {
 
     if(this.sqlResult) {
       resultsTable = html`
-        <p style="margin-bottom: 10px"><strong>Records:</strong> ${this.sqlResult.rows.length}</p>
+        <p class="sqlQueryTabResultsMessage"><strong>Records:</strong> ${this.sqlResult.rows.length}</p>
         <table class="table is-bordered is-striped is-narrow">
           <thead>
             <tr>
@@ -41,7 +64,13 @@ class SqlQueryTab extends LitElement {
             ${
               this.sqlResult.rows.map(row => {
                 return html`<tr>${this.sqlResult.fields.map(field => {
-                  return html`<td>${row[field.name]}</td>`
+                  let value = row[field.name];
+
+                  if(typeof value == 'object') {
+                    value = JSON.stringify(value);
+                  }
+
+                  return html`<td title="${value}">${value}</td>`
                 })}</tr>`
               })
             }
@@ -88,10 +117,21 @@ class SqlQueryTab extends LitElement {
     this.sqlResult = null;
     this._invalidate();
 
+    let editor = this.shadowRoot.querySelector('.sqlQueryTabEditor');
+    let editorContent = editor.value;
+
+    if(editor.selectionStart != editor.selectionEnd) {
+      editorContent = editorContent.substring(editor.selectionStart, editor.selectionEnd);
+    }
+    
+    if(editorContent.length == 0) {
+      return;
+    }
+
     fetch(`${connectionAPI}/${this.sessionId}/query`, {
       method: 'POST',
       body: JSON.stringify({
-        query: this.shadowRoot.querySelector('.sqlQueryTabEditor').value
+        query: editorContent
       }),
       headers:{
         'Content-Type': 'application/json'
@@ -102,10 +142,11 @@ class SqlQueryTab extends LitElement {
 
       if(parsedResult.error) {
         this.sqlError = parsedResult.error;
-      } else {
+      } else if(parsedResult.rows && parsedResult.fields) {
         this.sqlResult = parsedResult;
-
         this._onTextAreaFocus(1, 4);
+      } else {
+        this.sqlError = 'SQL Query was executed';
       }
 
       this._invalidate();
@@ -113,6 +154,9 @@ class SqlQueryTab extends LitElement {
     .catch(error => {
       this.sqlError = 'Could not process the SQL Request';
       this._invalidate();
+    })
+    .then(() => {
+      editor.focus();
     });
   }
 
@@ -173,7 +217,17 @@ class SqlQueryTab extends LitElement {
       }
       .sqlQueryTabResults {
         margin-top: 10px;
-        overflow-x: auto;
+        overflow: auto;
+      }
+      .sqlQueryTabResultsMessage {
+        text-align: right;
+        margin-bottom: 10px;
+      }
+      .sqlQueryTabResults td, .sqlQueryTabResults th {
+        white-space: nowrap;
+        max-width: 300px;
+        text-overflow: ellipsis;
+        overflow: hidden;
       }
       .sqlQueryTabWrapper {
         flex-grow: 1;
