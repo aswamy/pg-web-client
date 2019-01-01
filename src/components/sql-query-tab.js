@@ -1,24 +1,24 @@
 import { LitElement, html } from '@polymer/lit-element';
 
-const connectionAPI = '/api/connections';
-
 class SqlQueryTab extends LitElement {
 
   constructor() {
     super();
 
     this._onTextAreaFocus(4, 1);
-
-    this.sqlError = null;
-    this.sqlResult = null;
-
     this._assignHotKeys();
   }
 
   static get properties() {
     return {
+      tabId: { type: Number, attribute: 'tab-id' },
       isVisible: { type: Boolean, attribute: 'is-visible' },
-      sessionId: { type: String }
+      sessionId: { type: String },
+
+      _sqlError: { type: String, attribute: false },
+      _sqlResult: { type: String, attribute: false },
+      _editorTextAreaSize: { type: Number, attribute: false },
+      _resultsTextAreaSize: { type: Number, attribute: false }
     }
   }
 
@@ -51,26 +51,29 @@ class SqlQueryTab extends LitElement {
 
     let resultsTable = null;
 
-    if(this.sqlResult) {
+    if(this._sqlResult) {
       resultsTable = html`
-        <p class="sqlQueryTabResultsMessage"><strong>Records:</strong> ${this.sqlResult.rows.length}</p>
+        <p class="sqlQueryTabResultsMessage"><strong>Records:</strong> ${this._sqlResult.rows.length}</p>
         <table class="table is-bordered is-striped is-narrow">
           <thead>
             <tr>
-              ${this.sqlResult.fields.map(field => html`<th>${field.name}</th>`)}
+              ${this._sqlResult.fields.map(field => html`<th>${field.name}</th>`)}
             </tr>
           </thead>
           <tbody>
             ${
-              this.sqlResult.rows.map(row => {
-                return html`<tr>${this.sqlResult.fields.map(field => {
+              this._sqlResult.rows.map(row => {
+                return html`<tr>${this._sqlResult.fields.map(field => {
                   let value = row[field.name];
 
-                  if(typeof value == 'object') {
-                    value = JSON.stringify(value);
+                  if(value === null || value === undefined) {
+                    return html`<td><em>null<em></td>`;
+                  } else {
+                    if(typeof value == 'object') {
+                      value = JSON.stringify(value);
+                    }
+                    return html`<td title="${value}">${value}</td>`;
                   }
-
-                  return html`<td title="${value}">${value}</td>`
                 })}</tr>`
               })
             }
@@ -86,18 +89,18 @@ class SqlQueryTab extends LitElement {
       <div class="sqlQueryTabWrapper">
         <div class="sqlQueryTabMenu">
           <div class="sqlQueryTabMenuItemsLeft">
-            <img class="sqlQueryTabMenuItem" title="Run" src="./icons/run.svg" alt="image" @click="${this._onRun}">
-            <img class="sqlQueryTabMenuItem" title="Stop" src="./icons/stop.svg" alt="image" disabled>
-            <img class="sqlQueryTabMenuItem" title="Save" src="./icons/save.svg" alt="image">
-            <img class="sqlQueryTabMenuItem" title="Open" src="./icons/open.svg" alt="image">
+            <div class="sqlQueryTabMenuItem" @click="${this._onRun}"><svg title="Run"><use xlink:href="/icons/icons.svg#run"></use></svg></div>
+            <div class="sqlQueryTabMenuItem" disabled><svg title="Stop"><use xlink:href="/icons/icons.svg#stop"></use></svg></div>
+            <div class="sqlQueryTabMenuItem"><svg title="Save"><use xlink:href="/icons/icons.svg#save"></use></svg></div>
+            <div class="sqlQueryTabMenuItem"><svg title="Open"><use xlink:href="/icons/icons.svg#open"></use></svg></div>
           </div>
           <div class="sqlQueryTabMenuItemsRight">
-            <img class="sqlQueryTabMenuItem" title="History" src="./icons/history.svg">
+            <div class="sqlQueryTabMenuItem"><svg title="History"><use xlink:href="/icons/icons.svg#history"></use></svg></div>
           </div>
         </div>
-        <textarea style="flex-grow:${this._editorTextAreaSize}" @click="${this._onTextAreaFocus.bind(this, 4, 1)}" class="sqlQueryTabEditor"></textarea>
+        <div contenteditable style="flex-grow:${this._editorTextAreaSize}" @click="${this._onTextAreaFocus.bind(this, 4, 1)}" class="sqlQueryTabEditor"></div>
         <div style="flex-grow:${this._resultsTextAreaSize}" @click="${this._onTextAreaFocus.bind(this, 1, 4)}" class="sqlQueryTabResults" readonly>
-          <div>${this.sqlError}</div>
+          <div>${this._sqlError}</div>
           <div>${resultsTable}</div>
         </div>
       </div>
@@ -107,28 +110,27 @@ class SqlQueryTab extends LitElement {
   _onTextAreaFocus(editorSize, resultsSize) {
     this._editorTextAreaSize = editorSize;
     this._resultsTextAreaSize = resultsSize;
-
-    this._invalidate();
   }
 
   _onRun() {
 
-    this.sqlError = null;
-    this.sqlResult = null;
-    this._invalidate();
+    this._sqlError = null;
+    this._sqlResult = null;
 
     let editor = this.shadowRoot.querySelector('.sqlQueryTabEditor');
-    let editorContent = editor.value;
+    let editorContent = editor.innerText;
 
-    if(editor.selectionStart != editor.selectionEnd) {
-      editorContent = editorContent.substring(editor.selectionStart, editor.selectionEnd);
+    // If a piece of text is highlighted, only run that section
+    let highlightedText = this.shadowRoot.getSelection();
+    if(highlightedText.toString() && highlightedText.anchorNode.parentElement.classList.contains('sqlQueryTabEditor')) {
+      editorContent = highlightedText.toString();
     }
-    
+
     if(editorContent.length == 0) {
       return;
     }
 
-    fetch(`${connectionAPI}/${this.sessionId}/query`, {
+    fetch(`${CONNECTION_API}/${this.sessionId}/query`, {
       method: 'POST',
       body: JSON.stringify({
         query: editorContent
@@ -141,19 +143,16 @@ class SqlQueryTab extends LitElement {
     .then(parsedResult => {
 
       if(parsedResult.error) {
-        this.sqlError = parsedResult.error;
+        this._sqlError = parsedResult.error;
       } else if(parsedResult.rows && parsedResult.fields) {
-        this.sqlResult = parsedResult;
+        this._sqlResult = parsedResult;
         this._onTextAreaFocus(1, 4);
       } else {
-        this.sqlError = 'SQL Query was executed';
+        this._sqlError = 'SQL Query was executed';
       }
-
-      this._invalidate();
     })
     .catch(error => {
-      this.sqlError = 'Could not process the SQL Request';
-      this._invalidate();
+      this._sqlError = 'Could not process the SQL Request';
     })
     .then(() => {
       editor.focus();
@@ -171,7 +170,7 @@ class SqlQueryTab extends LitElement {
         border-style: solid;
         border-width: 1px 1px 0px 1px;
       }
-      .sqlQueryTabMenu .sqlQueryTabMenuItem {
+      .sqlQueryTabMenuItem {
         padding: 0.25rem 0.5rem;
         border-color: #dbdbdb;
         border-style: solid;
@@ -179,19 +178,25 @@ class SqlQueryTab extends LitElement {
         cursor: pointer;
         user-select: none;
       }
-      .sqlQueryTabMenu .sqlQueryTabMenuItem:first-child {
+      .sqlQueryTabMenuItem:first-child {
         border-width: 0px 1px 0px 1px;
       }
       .sqlQueryTabMenuItem:hover {
         background-color: #dbdbdb;
       }
       .sqlQueryTabMenuItem:active {
-        color: #3273dc;
+        fill: #3273dc;
       }
       .sqlQueryTabMenuItem[disabled] {
-        color: #dbdbdb !important;
         background-color: inherit !important;
         pointer-events: none;
+      }
+      .sqlQueryTabMenuItem > svg {
+        height: 24px;
+        width: 24px;
+      }
+      .sqlQueryTabMenuItem[disabled] > svg {
+        fill: #dbdbdb;
       }
       .sqlQueryTabMenuItemsRight, .sqlQueryTabMenuItemsLeft {
         display: flex;

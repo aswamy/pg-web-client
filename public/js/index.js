@@ -1,5 +1,3 @@
-const connectionAPI = '/api/connections';
-
 const normalMenuItemTemplate = document.querySelector('#menuItem--normal');
 const emphasizedMenuItemTemplate = document.querySelector('#menuItem--emphasized');
 
@@ -7,7 +5,7 @@ let SESSION_ID = null;
 
 async function main() {
   
-  const connectionResponse = await fetch(connectionAPI, {
+  const connectionResponse = await fetch(CONNECTION_API, {
     method: 'POST',
     body: JSON.stringify({
         user: _USER,
@@ -40,7 +38,7 @@ async function main() {
 
 async function refreshUsers(id) {
 
-  const usersResponse = await fetch(`${connectionAPI}/${id}/users`);
+  const usersResponse = await fetch(`${CONNECTION_API}/${id}/users`);
 
   if(!usersResponse.ok) {
     return;
@@ -61,7 +59,7 @@ async function refreshUsers(id) {
 
 async function refreshSchemas(id) {
 
-  const schemasResponse = await fetch(`${connectionAPI}/${id}/schemas`);
+  const schemasResponse = await fetch(`${CONNECTION_API}/${id}/schemas`);
 
   if(!schemasResponse.ok) {
     return;
@@ -116,22 +114,32 @@ async function refreshSchemas(id) {
   document.querySelector('#pgSchemas div').style.display = 'none';
 }
 
-function setupHotkeys() {
+document.getElementsByTagName('tab-menu')[0].onNewTab = function(tabId) {
+  let sqlQueryTabElement = document.createElement('sql-query-tab');
+  sqlQueryTabElement.tabId = tabId;
+  sqlQueryTabElement.sessionId = SESSION_ID;
+  sqlQueryTabElement.className = 'mainContent-viewableTab';
 
-  document.querySelector('#newTabLink').onclick = function() {
+  document.querySelector('#mainContent > div').appendChild(sqlQueryTabElement);
+}
 
-    let existingTabs = document.querySelectorAll('.mainContent-viewableTab').forEach(element => {
+document.getElementsByTagName('tab-menu')[0].onSelectTab = function(tabId) {
+  document.querySelectorAll('.mainContent-viewableTab').forEach(element => {
+    if(element.tabId == tabId) {
+      element.setAttribute('is-visible', '');
+    } else {
       element.removeAttribute('is-visible');
-    });
-    
-    let sqlQueryTabElement = document.createElement('sql-query-tab');
-    sqlQueryTabElement.sessionId = SESSION_ID;
-    sqlQueryTabElement.className = 'mainContent-viewableTab';
-    sqlQueryTabElement.setAttribute('is-visible', '');
+    }
+  });
+}
 
-    document.querySelector('#mainContent > div').appendChild(sqlQueryTabElement);
-  }
+document.getElementsByTagName('tab-menu')[0].onDeleteTab = function(tabId) {
+  document.querySelectorAll('.mainContent-viewableTab').forEach(element => {
+    if(element.tabId == tabId) {
+      element.parentNode.removeChild(element);
+      return;
+    }
+  });
 }
 
 main();
-setupHotkeys();

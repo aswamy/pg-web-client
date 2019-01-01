@@ -1,0 +1,27 @@
+<!-- These icons are from material.io -->
+<svg xmlns="http://www.w3.org/2000/svg">
+  <symbol id="home" viewBox="0 0 24 24">
+    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/><path d="M0 0h24v24H0z" fill="none"/>
+  </symbol>
+  <symbol id="close" viewBox="0 0 24 24">
+    <path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/><path d="M0 0h24v24H0z" fill="none"/>
+  </symbol>
+  <symbol id="plus" viewBox="0 0 24 24">
+    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/><path d="M0 0h24v24H0z" fill="none"/>
+  </symbol>
+  <symbol id="run" viewBox="0 0 24 24">
+    <path d="M8 5v14l11-7z"/><path d="M0 0h24v24H0z" fill="none"/>
+  </symbol>
+  <symbol id="stop" viewBox="0 0 24 24">
+    <path d="M0 0h24v24H0z" fill="none"/><path d="M6 6h12v12H6z"/>
+  </symbol>
+  <symbol id="save" viewBox="0 0 24 24">
+    <path d="M0 0h24v24H0z" fill="none"/><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
+  </symbol>
+  <symbol id="open" viewBox="0 0 24 24">
+    <path d="M0 0h24v24H0z" fill="none"/><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/>
+  </symbol>
+  <symbol id="history" viewBox="0 0 24 24">
+    <path d="M0 0h24v24H0z" fill="none"/><path d="M2 20h20v-4H2v4zm2-3h2v2H4v-2zM2 4v4h20V4H2zm4 3H4V5h2v2zm-4 7h20v-4H2v4zm2-3h2v2H4v-2z"/>
+  </symbol>
+</svg>

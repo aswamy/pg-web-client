@@ -10,16 +10,19 @@
     <link rel="stylesheet" href="/css/loading.css">
     <link rel="stylesheet" href="/css/animate.css">
 
-    <!-- We need to serve this for compatibility -->
-    <!--script src="./node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>-->
-    <script src="/libs/hotkeys/hotkeys.min.js"></script>
-    <script type="module" src="./components/components.js"></script>
+    <!-- Shared global variables -->
     <script>
       _HOST = '127.0.0.1';
       _DATABASE = 'testdb';
       _USER = 'test';
       _PASSWORD = 'test';
+      CONNECTION_API = '/api/connections';
     </script>
+
+    <!-- We need to serve this for compatibility -->
+    <!--script src="./node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>-->
+    <script src="/libs/hotkeys/hotkeys.min.js"></script>
+    <script type="module" src="./components/components.js"></script>
     <script defer src="/js/index.js"></script>
   </head>
   <body>
@@ -75,24 +78,7 @@
       </div>
       <div id="mainContent" class="column section doc-content">
         <div>
-          <div id="mainContent-tabs" class="tabs is-boxed">
-            <ul>
-              <li>
-                <a>Details</a>
-              </li>
-              <li class="is-active">
-                <a>SQL Query</a>
-              </li>
-              <li>
-                  <a id="newTabLink">+</a>
-              </li>
-            </ul>
-          </div>
-
-          <!-- Our potential tabs go here -->
-          <!--<details-tab class="mainContent-viewableTab"></details-tab>-->
-          <sql-query-tab is-visible class="mainContent-viewableTab"></sql-query-tab>
-
+          <tab-menu></tab-menu>
         </div>
       </div>
     </div>
