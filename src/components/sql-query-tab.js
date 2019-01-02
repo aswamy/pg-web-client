@@ -13,7 +13,7 @@ class SqlQueryTab extends LitElement {
     return {
       tabId: { type: Number, attribute: 'tab-id' },
       isVisible: { type: Boolean, attribute: 'is-visible' },
-      sessionId: { type: String },
+      sessionId: { type: String, attribute: 'session-id' },
 
       _sqlError: { type: String, attribute: false },
       _sqlResult: { type: String, attribute: false },
@@ -121,10 +121,9 @@ class SqlQueryTab extends LitElement {
     let editorContent = editor.innerText;
 
     // If a piece of text is highlighted, only run that section
-    let highlightedText = this.shadowRoot.getSelection();
-    if(highlightedText.toString() && highlightedText.anchorNode.parentElement.classList.contains('sqlQueryTabEditor')) {
-      editorContent = highlightedText.toString();
-    }
+    // TODO: check to see if the highlighted text is inside the editor
+    let highlightedText = this.shadowRoot.getSelection().toString();
+    editorContent = highlightedText || editorContent;
 
     if(editorContent.length == 0) {
       return;

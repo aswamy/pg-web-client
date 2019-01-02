@@ -59,21 +59,13 @@ class TabMenu extends LitElement {
           newTabToFocus = this.tabs[tabToFocusAfterDeletion];
         }
       }
-
-      this.onDeleteTab(tabId);
-      this.tabs = this.tabs.filter(t => t.id != tabId);
-
-      console.log(newTabToFocus)
-
       this.selectTab(newTabToFocus.id);
-    } else {
-      this.tabs = this.tabs.filter(t => t.id != tabId);
-      this.onDeleteTab(tabId);
     }
+    this.tabs = this.tabs.filter(t => t.id != tabId);
+    this.onDeleteTab(tabId);
   }
 
   selectTab(tabId) {
-    console.log('called select')
     this.selectedTabId = tabId;
     this.onSelectTab(tabId);
   }

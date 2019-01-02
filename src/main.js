@@ -30,7 +30,7 @@ async function establishConnection() {
 
   ESTABLISHED_CONNECTION = await sessionManager.connect(
     {
-      host: 'localhost',
+      host: '127.0.0.1',
       user: 'test',
       password: 'test',
       database: 'testdb',

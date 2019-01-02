@@ -15,13 +15,12 @@ html {
 #connection:hover .connectionAddress {
   display: block;
 }
-#sidebar {
+#sidebarWrapper {
   overflow-x: hidden;
   overflow-y: auto;
   width: 300px;
-}
-#sidebar > div {
-  margin: 0;
+  border: #dbdbdb 0px solid;
+  border-right-width: 1px;
 }
 #mainContent > div {
   padding: .75rem;
@@ -30,25 +29,6 @@ html {
   flex-direction: column;
   height: 100%;
   width: 100%;
-}
-#sidebar aside.menu {
-  font-size: 0.9rem;
-  margin: .75rem;
-}
-#sidebar aside.menu .menu-label {
-  margin: 1em 0em 0.5em 0em;
-}
-#sidebar aside .menu-list a {
-  padding: .25em .25em;
-}
-#sidebar aside .menu-list ul {
-  margin: .25em;
-}
-#sidebarOptions {
-  background: #f5f5f5;
-}
-#pgSchemas {
-  margin-bottom: 1.5em;
 }
 #mainContent-tabs {
   font-size: 0.9rem;
@@ -67,9 +47,6 @@ html {
 .icon.is-tiny {
   height: 0.6rem;
   width: 0.6rem;
-}
-.menu-label {
-  user-select: none;
 }
 .mainContent-viewableTab {
   display: flex;
