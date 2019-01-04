@@ -143,6 +143,9 @@ class SideMenu extends LitElement {
       aside .menu-list ul {
         margin: .25em;
       }
+      aside .menu-list p {
+        cursor: pointer;
+      }
       #pgSchemas {
         margin-bottom: 1.5em;
       }

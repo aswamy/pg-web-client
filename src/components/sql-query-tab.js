@@ -5,7 +5,6 @@ class SqlQueryTab extends LitElement {
   constructor() {
     super();
 
-    this._onTextAreaFocus(4, 1);
     this._assignHotKeys();
   }
 
@@ -16,9 +15,7 @@ class SqlQueryTab extends LitElement {
       sessionId: { type: String, attribute: 'session-id' },
 
       _sqlError: { type: String, attribute: false },
-      _sqlResult: { type: String, attribute: false },
-      _editorTextAreaSize: { type: Number, attribute: false },
-      _resultsTextAreaSize: { type: Number, attribute: false }
+      _sqlResult: { type: Object, attribute: false }
     }
   }
 
@@ -53,7 +50,6 @@ class SqlQueryTab extends LitElement {
 
     if(this._sqlResult) {
       resultsTable = html`
-        <p class="sqlQueryTabResultsMessage"><strong>Records:</strong> ${this._sqlResult.rows.length}</p>
         <table class="table is-bordered is-striped is-narrow">
           <thead>
             <tr>
@@ -98,18 +94,31 @@ class SqlQueryTab extends LitElement {
             <div class="sqlQueryTabMenuItem"><svg title="History"><use xlink:href="/icons/icons.svg#history"></use></svg></div>
           </div>
         </div>
-        <div contenteditable style="flex-grow:${this._editorTextAreaSize}" @click="${this._onTextAreaFocus.bind(this, 4, 1)}" class="sqlQueryTabEditor"></div>
-        <div style="flex-grow:${this._resultsTextAreaSize}" @click="${this._onTextAreaFocus.bind(this, 1, 4)}" class="sqlQueryTabResults" readonly>
-          <div>${this._sqlError}</div>
-          <div>${resultsTable}</div>
+        <div class="sqlResizableContent">
+          <div contenteditable @click="${this._focusTopTextArea.bind(this, true)}" class="sqlQueryTabEditor"></div>
+          <div @click="${this._focusTopTextArea.bind(this, false)}" class="sqlQueryTabResults" readonly>
+            ${this._sqlError ? html`<div class="sqlQueryTabResultsErrorMessage">${this._sqlError}</div>` : null}
+            ${resultsTable}
+          </div>
         </div>
+        <div class="sqlQueryTabResultsMeta">${this._sqlResult ? html`<strong>Records:</strong> ${this._sqlResult.rows.length}` : null }</div>
       </div>
     `;
   }
 
-  _onTextAreaFocus(editorSize, resultsSize) {
-    this._editorTextAreaSize = editorSize;
-    this._resultsTextAreaSize = resultsSize;
+  _focusTopTextArea(isTop) {
+    let TOP_TEXT_AREA;
+    let BOTTOM_TEXT_AREA;
+
+    if(isTop) {
+      TOP_TEXT_AREA = '70%';
+      BOTTOM_TEXT_AREA = '30%';
+    } else {
+      TOP_TEXT_AREA = '30%';
+      BOTTOM_TEXT_AREA = '70%';
+    }
+
+    this.shadowRoot.querySelector('.sqlResizableContent').style['grid-template-rows'] = `${TOP_TEXT_AREA} ${BOTTOM_TEXT_AREA}`;
   }
 
   _onRun() {
@@ -145,7 +154,7 @@ class SqlQueryTab extends LitElement {
         this._sqlError = parsedResult.error;
       } else if(parsedResult.rows && parsedResult.fields) {
         this._sqlResult = parsedResult;
-        this._onTextAreaFocus(1, 4);
+        this._focusTopTextArea(false);
       } else {
         this._sqlError = 'SQL Query was executed';
       }
@@ -216,15 +225,19 @@ class SqlQueryTab extends LitElement {
         font-size: 14px;
         border: 1px solid #dbdbdb;
         resize: none;
+      }
+      .sqlQueryTabEditor {
         padding: 0.75rem;
       }
       .sqlQueryTabResults {
         margin-top: 10px;
         overflow: auto;
+        position: relative;
       }
       .sqlQueryTabResultsMessage {
+        position: sticky;
+        top: 0;
         text-align: right;
-        margin-bottom: 10px;
       }
       .sqlQueryTabResults td, .sqlQueryTabResults th {
         white-space: nowrap;
@@ -232,13 +245,37 @@ class SqlQueryTab extends LitElement {
         text-overflow: ellipsis;
         overflow: hidden;
       }
+      .sqlQueryTabResults table, .sqlQueryTabResultsErrorMessage {
+        margin: 0.75rem;
+        display: inline-block;
+      }
       .sqlQueryTabWrapper {
-        flex-grow: 1;
         display: flex;
         flex-direction: column;
         width: 100%;
       }
-      </style>`;
+      .sqlResizableContent {
+        display: grid;
+        flex-grow: 1;
+        grid-template-rows: 70% 30%;
+      }
+      .sqlQueryTabResults th {
+        background: white;
+        position: sticky;
+        top: -1;
+        z-index: 10;
+        padding: .5em .5em !important;
+      }
+      .sqlQueryTabResultsMeta {
+        height: 28px;
+        background-color: #f5f5f5;
+        border: 1px solid #dbdbdb;
+        border-top: 0px;
+        font-size: 12px;
+        text-align: right;
+        padding: 0.25rem 0.75rem;
+      }
+    </style>`;
   }
 }
 
