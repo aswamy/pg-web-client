@@ -6,6 +6,8 @@ class SqlQueryTab extends LitElement {
     super();
 
     this._assignHotKeys();
+
+    this._sqlQueryHistory = [];
   }
 
   static get properties() {
@@ -15,7 +17,9 @@ class SqlQueryTab extends LitElement {
       sessionId: { type: String, attribute: 'session-id' },
 
       _sqlError: { type: String, attribute: false },
-      _sqlResult: { type: Object, attribute: false }
+      _sqlResult: { type: Object, attribute: false },
+
+      _sqlQueryHistory: { type: Array, attribute: false}
     }
   }
 
@@ -26,23 +30,12 @@ class SqlQueryTab extends LitElement {
         this._onRun();
       }
     });
-    hotkeys('ctrl+s', (event, handler) => {
-      if(this.isVisible) {
-        event.preventDefault();
-        //TODO: handle save of sql file
-      }
-    });
-    hotkeys('ctrl+o', (event, handler) => {
-      if(this.isVisible) {
-        event.preventDefault();
-        //TODO: handle open of sql file
-    }
-    });
   }
 
   render() {
 
     if(!this.isVisible) {
+      hotkeys.unbind('*');
       return html``;
     }
 
@@ -91,11 +84,26 @@ class SqlQueryTab extends LitElement {
             <div class="sqlQueryTabMenuItem"><svg title="Open"><use xlink:href="/icons/icons.svg#open"></use></svg></div>
           </div>
           <div class="sqlQueryTabMenuItemsRight">
-            <div class="sqlQueryTabMenuItem"><svg title="History"><use xlink:href="/icons/icons.svg#history"></use></svg></div>
+            <div class="dropdown is-right is-active">
+              <div class="dropdown-trigger">
+                <div id="sqlQueryHistoryBtn" class="sqlQueryTabMenuItem" @click="${this._onViewSqlQueryHistory.bind(this)}"><svg title="History"><use xlink:href="/icons/icons.svg#history"></use></svg></div>
+              </div>
+              <div id="sqlQueryHistoryDropdown" style="display:none" class="dropdown-menu">
+                <div class="dropdown-content">
+                  ${this._sqlQueryHistory.map(historicQuery => html`
+                    <div class="dropdown-item columns">
+                      <div title="${historicQuery}" class="column sqlQueryHistoryMessage">${historicQuery}</div>
+                      <div @click="${this._onCopy.bind(this, historicQuery)}" class="column sqlQueryHistoryMenuIcon"><svg title="Copy"><use xlink:href="/icons/icons.svg#copy"></use></svg></div>
+                      <div @click="${this._onLaunchNewTab.bind(this, historicQuery)}" class="column sqlQueryHistoryMenuIcon"><svg title="Open"><use xlink:href="/icons/icons.svg#launch"></use></svg></div>
+                    </div>
+                  `)}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div class="sqlResizableContent">
-          <div contenteditable @click="${this._focusTopTextArea.bind(this, true)}" class="sqlQueryTabEditor"></div>
+          <div contenteditable spellcheck="false" @click="${this._focusTopTextArea.bind(this, true)}" class="sqlQueryTabEditor"></div>
           <div @click="${this._focusTopTextArea.bind(this, false)}" class="sqlQueryTabResults" readonly>
             ${this._sqlError ? html`<div class="sqlQueryTabResultsErrorMessage">${this._sqlError}</div>` : null}
             ${resultsTable}
@@ -104,6 +112,20 @@ class SqlQueryTab extends LitElement {
         <div class="sqlQueryTabResultsMeta">${this._sqlResult ? html`<strong>Records:</strong> ${this._sqlResult.rows.length}` : null }</div>
       </div>
     `;
+  }
+
+  _onCopy(query) {
+    const element = document.createElement('textarea');
+    element.value = query;
+    this.shadowRoot.appendChild(element);
+    element.select();
+    document.execCommand('copy');
+    this.shadowRoot.removeChild(element);
+    this._onViewSqlQueryHistory('close');
+  }
+
+  _onLaunchNewTab(query) {
+
   }
 
   _focusTopTextArea(isTop) {
@@ -155,6 +177,8 @@ class SqlQueryTab extends LitElement {
       } else if(parsedResult.rows && parsedResult.fields) {
         this._sqlResult = parsedResult;
         this._focusTopTextArea(false);
+
+        prependSqlQueryHistory(editorContent);
       } else {
         this._sqlError = 'SQL Query was executed';
       }
@@ -165,6 +189,35 @@ class SqlQueryTab extends LitElement {
     .then(() => {
       editor.focus();
     });
+  }
+
+  _onViewSqlQueryHistory(operation = 'toggle') {
+
+    let dropdown = this.shadowRoot.querySelector('#sqlQueryHistoryDropdown');
+    let dropdownBtn = this.shadowRoot.querySelector('#sqlQueryHistoryBtn');
+
+    if(dropdown && dropdownBtn) {
+
+      if(operation == 'open') {
+        this._sqlQueryHistory = getSqlQueryHistory();
+        dropdown.style.display = 'initial';
+        dropdownBtn.classList.add('active');
+        hotkeys('esc', (event, handler) => {
+          event.preventDefault();
+          this._onViewSqlQueryHistory('close');
+        });
+      } else if(operation == 'close') {
+        hotkeys.unbind('esc');
+        dropdown.style.display = 'none';
+        dropdownBtn.classList.remove('active');
+      } else {
+        this._onViewSqlQueryHistory(
+          dropdown.style.display == 'none' ?
+          'open' : 'close'
+        )
+      }
+    }
+
   }
 
   get htmlStyle() {
@@ -178,6 +231,42 @@ class SqlQueryTab extends LitElement {
         border-style: solid;
         border-width: 1px 1px 0px 1px;
       }
+      .sqlQueryTabMenu .dropdown-menu {
+        padding-top: 10px;
+        width: 400px;
+      }
+      .sqlQueryTabMenu .dropdown-menu .dropdown-content {
+        padding: 0;
+        border-radius: 0px;
+      }
+      .sqlQueryHistoryMessage {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow-x: hidden;
+        padding: 4px 10px;
+      }
+      .sqlQueryHistoryMenuIcon {
+        max-width: 32px;
+        padding: 10px 4px;
+      }
+      .sqlQueryHistoryMenuIcon > svg {
+        height: 14px;
+        width: 14px;
+      }
+      .sqlQueryHistoryMenuIcon:hover {
+        fill: #3273dc;
+        cursor: pointer;
+      }
+      .sqlQueryTabMenu .dropdown-menu .dropdown-item {
+        margin: 0;
+        padding: 0;
+      }
+      .dropdown-item + .dropdown-item {
+        border-top: 1px solid #f5f5f5;
+      }
+      .sqlQueryTabMenu .dropdown-menu .dropdown-item:hover {
+        background-color: #f5f5f5;
+      }
       .sqlQueryTabMenuItem {
         padding: 0.25rem 0.5rem;
         border-color: #dbdbdb;
@@ -189,10 +278,10 @@ class SqlQueryTab extends LitElement {
       .sqlQueryTabMenuItem:first-child {
         border-width: 0px 1px 0px 1px;
       }
-      .sqlQueryTabMenuItem:hover {
+      .sqlQueryTabMenuItem:hover, .sqlQueryTabMenuItem.active {
         background-color: #dbdbdb;
       }
-      .sqlQueryTabMenuItem:active {
+      .sqlQueryTabMenuItem:active, .sqlQueryTabMenuItem.active {
         fill: #3273dc;
       }
       .sqlQueryTabMenuItem[disabled] {
@@ -228,6 +317,7 @@ class SqlQueryTab extends LitElement {
       }
       .sqlQueryTabEditor {
         padding: 0.75rem;
+        overflow-y: auto;
       }
       .sqlQueryTabResults {
         margin-top: 10px;
