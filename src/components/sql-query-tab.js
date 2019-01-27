@@ -8,6 +8,7 @@ class SqlQueryTab extends LitElement {
     this._assignHotKeys();
 
     this._sqlQueryHistory = [];
+    this._sqlQuery = '';
   }
 
   static get properties() {
@@ -16,10 +17,34 @@ class SqlQueryTab extends LitElement {
       isVisible: { type: Boolean, attribute: 'is-visible' },
       sessionId: { type: String, attribute: 'session-id' },
 
+      // Query being ran
+      sqlQuery: { type: String, attribute: 'sql-query' },
+      // Error from the query run
       _sqlError: { type: String, attribute: false },
+      // Result from the query run
       _sqlResult: { type: Object, attribute: false },
 
       _sqlQueryHistory: { type: Array, attribute: false}
+    }
+  }
+
+  updated(changedProperties) {
+    /*
+     * When a SQL Query Tab has become visible,
+     * 1) Add a listener to watch the editor's text
+     * 2) If a previous query exists, load it up
+     */
+    if(changedProperties.has('isVisible') && this.isVisible) {
+
+      let editor = this.shadowRoot.querySelector('.sqlQueryTabEditor');
+
+      editor.addEventListener('input', (e) => {
+        this.sqlQuery = e.target.value;
+      });
+
+      if(this.sqlQuery) {
+        editor.value = this.sqlQuery;
+      }
     }
   }
 
@@ -30,6 +55,111 @@ class SqlQueryTab extends LitElement {
         this._onRun();
       }
     });
+  }
+
+  _onCopy(query) {
+    const element = document.createElement('textarea');
+    element.value = query;
+    this.shadowRoot.appendChild(element);
+    element.select();
+    document.execCommand('copy');
+    this.shadowRoot.removeChild(element);
+    this._onViewSqlQueryHistory('close');
+  }
+
+  _onLaunchNewTab(query) {
+
+  }
+
+  _focusTopTextArea(isTop) {
+    let TOP_TEXT_AREA;
+    let BOTTOM_TEXT_AREA;
+
+    if(isTop) {
+      TOP_TEXT_AREA = '70%';
+      BOTTOM_TEXT_AREA = '30%';
+    } else {
+      TOP_TEXT_AREA = '30%';
+      BOTTOM_TEXT_AREA = '70%';
+    }
+
+    this.shadowRoot.querySelector('.sqlResizableContent').style['grid-template-rows'] = `${TOP_TEXT_AREA} ${BOTTOM_TEXT_AREA}`;
+  }
+
+  _onRun() {
+
+    this._sqlError = null;
+    this._sqlResult = null;
+
+    let editor = this.shadowRoot.querySelector('.sqlQueryTabEditor');
+    let editorContent = editor.value;
+
+    // If a piece of text is highlighted, only run that section
+    // TODO: check to see if the highlighted text is inside the editor
+    let highlightedText = this.shadowRoot.getSelection().toString();
+    editorContent = highlightedText || editorContent;
+
+    if(editorContent.length == 0) {
+      return;
+    }
+
+    fetch(`${CONNECTION_API}/${this.sessionId}/query`, {
+      method: 'POST',
+      body: JSON.stringify({
+        query: editorContent
+      }),
+      headers:{
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(result => result.json())
+    .then(parsedResult => {
+
+      if(parsedResult.error) {
+        this._sqlError = parsedResult.error;
+      } else if(parsedResult.rows && parsedResult.fields) {
+        this._sqlResult = parsedResult;
+        this._focusTopTextArea(false);
+
+        prependSqlQueryHistory(editorContent);
+      } else {
+        this._sqlError = 'SQL Query was executed';
+      }
+    })
+    .catch(error => {
+      this._sqlError = 'Could not process the SQL Request';
+    })
+    .then(() => {
+      editor.focus();
+    });
+  }
+
+  _onViewSqlQueryHistory(operation = 'toggle') {
+
+    let dropdown = this.shadowRoot.querySelector('#sqlQueryHistoryDropdown');
+    let dropdownBtn = this.shadowRoot.querySelector('#sqlQueryHistoryBtn');
+
+    if(dropdown && dropdownBtn) {
+
+      if(operation == 'open') {
+        this._sqlQueryHistory = getSqlQueryHistory();
+        dropdown.style.display = 'initial';
+        dropdownBtn.classList.add('active');
+        hotkeys('esc', (event, handler) => {
+          event.preventDefault();
+          this._onViewSqlQueryHistory('close');
+        });
+      } else if(operation == 'close') {
+        hotkeys.unbind('esc');
+        dropdown.style.display = 'none';
+        dropdownBtn.classList.remove('active');
+      } else {
+        this._onViewSqlQueryHistory(
+          dropdown.style.display == 'none' ?
+          'open' : 'close'
+        )
+      }
+    }
   }
 
   render() {
@@ -103,7 +233,7 @@ class SqlQueryTab extends LitElement {
           </div>
         </div>
         <div class="sqlResizableContent">
-          <div contenteditable spellcheck="false" @click="${this._focusTopTextArea.bind(this, true)}" class="sqlQueryTabEditor"></div>
+          <textarea spellcheck="false" @click="${this._focusTopTextArea.bind(this, true)}" class="sqlQueryTabEditor"></textarea>
           <div @click="${this._focusTopTextArea.bind(this, false)}" class="sqlQueryTabResults" readonly>
             ${this._sqlError ? html`<div class="sqlQueryTabResultsErrorMessage">${this._sqlError}</div>` : null}
             ${resultsTable}
@@ -112,112 +242,6 @@ class SqlQueryTab extends LitElement {
         <div class="sqlQueryTabResultsMeta">${this._sqlResult ? html`<strong>Records:</strong> ${this._sqlResult.rows.length}` : null }</div>
       </div>
     `;
-  }
-
-  _onCopy(query) {
-    const element = document.createElement('textarea');
-    element.value = query;
-    this.shadowRoot.appendChild(element);
-    element.select();
-    document.execCommand('copy');
-    this.shadowRoot.removeChild(element);
-    this._onViewSqlQueryHistory('close');
-  }
-
-  _onLaunchNewTab(query) {
-
-  }
-
-  _focusTopTextArea(isTop) {
-    let TOP_TEXT_AREA;
-    let BOTTOM_TEXT_AREA;
-
-    if(isTop) {
-      TOP_TEXT_AREA = '70%';
-      BOTTOM_TEXT_AREA = '30%';
-    } else {
-      TOP_TEXT_AREA = '30%';
-      BOTTOM_TEXT_AREA = '70%';
-    }
-
-    this.shadowRoot.querySelector('.sqlResizableContent').style['grid-template-rows'] = `${TOP_TEXT_AREA} ${BOTTOM_TEXT_AREA}`;
-  }
-
-  _onRun() {
-
-    this._sqlError = null;
-    this._sqlResult = null;
-
-    let editor = this.shadowRoot.querySelector('.sqlQueryTabEditor');
-    let editorContent = editor.innerText;
-
-    // If a piece of text is highlighted, only run that section
-    // TODO: check to see if the highlighted text is inside the editor
-    let highlightedText = this.shadowRoot.getSelection().toString();
-    editorContent = highlightedText || editorContent;
-
-    if(editorContent.length == 0) {
-      return;
-    }
-
-    fetch(`${CONNECTION_API}/${this.sessionId}/query`, {
-      method: 'POST',
-      body: JSON.stringify({
-        query: editorContent
-      }),
-      headers:{
-        'Content-Type': 'application/json'
-      }
-    })
-    .then(result => result.json())
-    .then(parsedResult => {
-
-      if(parsedResult.error) {
-        this._sqlError = parsedResult.error;
-      } else if(parsedResult.rows && parsedResult.fields) {
-        this._sqlResult = parsedResult;
-        this._focusTopTextArea(false);
-
-        prependSqlQueryHistory(editorContent);
-      } else {
-        this._sqlError = 'SQL Query was executed';
-      }
-    })
-    .catch(error => {
-      this._sqlError = 'Could not process the SQL Request';
-    })
-    .then(() => {
-      editor.focus();
-    });
-  }
-
-  _onViewSqlQueryHistory(operation = 'toggle') {
-
-    let dropdown = this.shadowRoot.querySelector('#sqlQueryHistoryDropdown');
-    let dropdownBtn = this.shadowRoot.querySelector('#sqlQueryHistoryBtn');
-
-    if(dropdown && dropdownBtn) {
-
-      if(operation == 'open') {
-        this._sqlQueryHistory = getSqlQueryHistory();
-        dropdown.style.display = 'initial';
-        dropdownBtn.classList.add('active');
-        hotkeys('esc', (event, handler) => {
-          event.preventDefault();
-          this._onViewSqlQueryHistory('close');
-        });
-      } else if(operation == 'close') {
-        hotkeys.unbind('esc');
-        dropdown.style.display = 'none';
-        dropdownBtn.classList.remove('active');
-      } else {
-        this._onViewSqlQueryHistory(
-          dropdown.style.display == 'none' ?
-          'open' : 'close'
-        )
-      }
-    }
-
   }
 
   get htmlStyle() {
