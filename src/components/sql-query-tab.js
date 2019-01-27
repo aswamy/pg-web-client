@@ -4,11 +4,10 @@ class SqlQueryTab extends LitElement {
 
   constructor() {
     super();
+    this.sqlQuery = '';
 
     this._assignHotKeys();
-
     this._sqlQueryHistory = [];
-    this._sqlQuery = '';
   }
 
   static get properties() {
@@ -16,14 +15,11 @@ class SqlQueryTab extends LitElement {
       tabId: { type: Number, attribute: 'tab-id' },
       isVisible: { type: Boolean, attribute: 'is-visible' },
       sessionId: { type: String, attribute: 'session-id' },
-
-      // Query being ran
-      sqlQuery: { type: String, attribute: 'sql-query' },
+      
       // Error from the query run
       _sqlError: { type: String, attribute: false },
       // Result from the query run
       _sqlResult: { type: Object, attribute: false },
-
       _sqlQueryHistory: { type: Array, attribute: false}
     }
   }
@@ -35,16 +31,16 @@ class SqlQueryTab extends LitElement {
      * 2) If a previous query exists, load it up
      */
     if(changedProperties.has('isVisible') && this.isVisible) {
-
+      
+      console.debug(`Tab #${this.tabId} is visible`);
+      
       let editor = this.shadowRoot.querySelector('.sqlQueryTabEditor');
 
       editor.addEventListener('input', (e) => {
         this.sqlQuery = e.target.value;
       });
 
-      if(this.sqlQuery) {
-        editor.value = this.sqlQuery;
-      }
+      editor.value = this.sqlQuery || '';
     }
   }
 
@@ -68,7 +64,7 @@ class SqlQueryTab extends LitElement {
   }
 
   _onLaunchNewTab(query) {
-
+    document.querySelector('tab-menu').createTab(query);
   }
 
   _focusTopTextArea(isTop) {

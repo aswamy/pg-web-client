@@ -26,7 +26,7 @@ class TabMenu extends LitElement {
     }
   }
 
-  createTab() {
+  createTab(query) {
     const tabId = new Date().getTime();
     
     this.tabs = [...this.tabs, {
@@ -34,7 +34,7 @@ class TabMenu extends LitElement {
       name: 'SQL Query'
     }];
 
-    this.onNewTab(tabId);
+    this.onNewTab(tabId, query);
     this.selectTab(tabId);
   }
 
@@ -87,7 +87,7 @@ class TabMenu extends LitElement {
               }
               </a></li>`
           })}
-          <li><a @click="${this.createTab.bind(this)}">
+          <li><a @click="${this.createTab.bind(this, null)}">
             <svg class="tabIcon"><use xlink:href="/icons/icons.svg#plus"></use></svg>
           </a></li>
         </ul>

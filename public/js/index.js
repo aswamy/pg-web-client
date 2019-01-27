@@ -35,11 +35,12 @@ async function main() {
   });
 }
 
-document.getElementsByTagName('tab-menu')[0].onNewTab = function(tabId) {
+document.getElementsByTagName('tab-menu')[0].onNewTab = function(tabId, query = '') {
   let sqlQueryTabElement = document.createElement('sql-query-tab');
   sqlQueryTabElement.tabId = tabId;
   sqlQueryTabElement.sessionId = SESSION_ID;
   sqlQueryTabElement.className = 'mainContent-viewableTab';
+  sqlQueryTabElement.sqlQuery = query;
 
   document.querySelector('#mainContent > div').appendChild(sqlQueryTabElement);
 }
