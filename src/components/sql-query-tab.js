@@ -15,7 +15,7 @@ class SqlQueryTab extends LitElement {
       tabId: { type: Number, attribute: 'tab-id' },
       isVisible: { type: Boolean, attribute: 'is-visible' },
       sessionId: { type: String, attribute: 'session-id' },
-      
+      sqlQuery: { type: String },
       // Error from the query run
       _sqlError: { type: String, attribute: false },
       // Result from the query run
@@ -36,11 +36,9 @@ class SqlQueryTab extends LitElement {
       
       let editor = this.shadowRoot.querySelector('.sqlQueryTabEditor');
 
-      editor.addEventListener('input', (e) => {
-        this.sqlQuery = e.target.value;
-      });
-
       editor.value = this.sqlQuery || '';
+      editor.addEventListener('input', (e) => this.sqlQuery = e.target.value);
+      editor.addEventListener('focus', (e) => this._onViewSqlQueryHistory('close'));
     }
   }
 
@@ -80,6 +78,20 @@ class SqlQueryTab extends LitElement {
     }
 
     this.shadowRoot.querySelector('.sqlResizableContent').style['grid-template-rows'] = `${TOP_TEXT_AREA} ${BOTTOM_TEXT_AREA}`;
+  }
+
+  _onSave() {
+    const saveFileName = `SQLQuery_${Date.now()}.sql`;
+    const data = [ this.sqlQuery ];
+    const url = URL.createObjectURL(new File(data, saveFileName, { type: 'text/plain' }));
+
+    // Use a fake 'a' tag to let the user download SQL Query
+    const element = document.createElement('a');
+    element.setAttribute('download', saveFileName);
+    element.setAttribute('href', url);
+    element.click();
+
+    URL.revokeObjectURL(url);
   }
 
   _onRun() {
@@ -204,10 +216,11 @@ class SqlQueryTab extends LitElement {
       <div class="sqlQueryTabWrapper">
         <div class="sqlQueryTabMenu">
           <div class="sqlQueryTabMenuItemsLeft">
-            <div class="sqlQueryTabMenuItem" @click="${this._onRun}"><svg title="Run"><use xlink:href="/icons/icons.svg#run"></use></svg></div>
-            <div class="sqlQueryTabMenuItem" disabled><svg title="Stop"><use xlink:href="/icons/icons.svg#stop"></use></svg></div>
-            <div class="sqlQueryTabMenuItem"><svg title="Save"><use xlink:href="/icons/icons.svg#save"></use></svg></div>
-            <div class="sqlQueryTabMenuItem"><svg title="Open"><use xlink:href="/icons/icons.svg#open"></use></svg></div>
+            
+            <div class="sqlQueryTabMenuItem" ?disabled=${false} @click="${this._onRun}"><svg title="Run"><use xlink:href="/icons/icons.svg#run"></use></svg></div>
+            <div class="sqlQueryTabMenuItem" ?disabled=${true}><svg title="Stop"><use xlink:href="/icons/icons.svg#stop"></use></svg></div>
+            <div class="sqlQueryTabMenuItem" ?disabled="${!this.sqlQuery}" @click="${this._onSave}"><svg title="Save"><use xlink:href="/icons/icons.svg#save"></use></svg></div>
+            <div class="sqlQueryTabMenuItem" ?disabled=${false}><svg title="Open"><use xlink:href="/icons/icons.svg#open"></use></svg></div>
           </div>
           <div class="sqlQueryTabMenuItemsRight">
             <div class="dropdown is-right is-active">

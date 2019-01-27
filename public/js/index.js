@@ -65,3 +65,5 @@ document.getElementsByTagName('tab-menu')[0].onDeleteTab = function(tabId) {
 }
 
 main();
+
+window.onbeforeunload = function() { return true };
