@@ -5,6 +5,7 @@ class SqlQueryTab extends LitElement {
   constructor() {
     super();
     this.sqlQuery = '';
+    this.acquireDatabaseSession();
 
     this._assignHotKeys();
     this._sqlQueryHistory = [];
@@ -49,6 +50,22 @@ class SqlQueryTab extends LitElement {
         this._onRun();
       }
     });
+  }
+
+  acquireDatabaseSession() {
+    createConnection().then(connection => {
+      this.sessionId = connection.id;
+    })
+    .catch(error => {
+      this._sqlError = 'Tab could not acquire SQL session. Close other tabs or reload the application.';
+    });
+  }
+
+  releaseDatabaseSession() {
+    destroyConnection(this.sessionId)
+      .catch(error => {
+        console.error(`Could not release Database session with id ${this.sessionId}.`);
+      });
   }
 
   _onCopy(query) {
@@ -242,7 +259,7 @@ class SqlQueryTab extends LitElement {
           </div>
         </div>
         <div class="sqlResizableContent">
-          <textarea spellcheck="false" @click="${this._focusTopTextArea.bind(this, true)}" class="sqlQueryTabEditor"></textarea>
+          <textarea ?disabled=${!this.sessionId} spellcheck="false" @click="${this._focusTopTextArea.bind(this, true)}" class="sqlQueryTabEditor"></textarea>
           <div @click="${this._focusTopTextArea.bind(this, false)}" class="sqlQueryTabResults" readonly>
             ${this._sqlError ? html`<div class="sqlQueryTabResultsErrorMessage">${this._sqlError}</div>` : null}
             ${resultsTable}

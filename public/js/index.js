@@ -1,51 +1,25 @@
-const normalMenuItemTemplate = document.querySelector('#menuItem--normal');
-const emphasizedMenuItemTemplate = document.querySelector('#menuItem--emphasized');
-
-let SESSION_ID = null;
+const $tabMenu = document.querySelector('tab-menu');
+const $sideMenu = document.querySelector('side-menu');
+const $homeTab = document.querySelector('home-tab');
 
 async function main() {
   
-  const connectionResponse = await fetch(CONNECTION_API, {
-    method: 'POST',
-    body: JSON.stringify({
-        user: _USER,
-        host: _HOST,
-        database: _DATABASE,
-        password: _PASSWORD,
-        port: 5432,
-        statement_timeout: 90000,
-      }),
-    headers:{
-      'Content-Type': 'application/json'
-    }
-  });
-  
-  if(!connectionResponse.ok) {
-    return;
-  }
+  const connection = await createConnection();
 
-  const connection = await connectionResponse.json();
-
-  SESSION_ID = connection.id;
-
-  document.getElementsByTagName('side-menu')[0].sessionId = SESSION_ID;
-
-  document.querySelectorAll('.mainContent-viewableTab').forEach(domElement => {
-    domElement.sessionId = SESSION_ID;
-  });
+  $sideMenu.sessionId = connection.id;
+  $homeTab.sessionId = connection.id;
 }
 
-document.getElementsByTagName('tab-menu')[0].onNewTab = function(tabId, query = '') {
+$tabMenu.onNewTab = function(tabId, query = '') {
   let sqlQueryTabElement = document.createElement('sql-query-tab');
   sqlQueryTabElement.tabId = tabId;
-  sqlQueryTabElement.sessionId = SESSION_ID;
   sqlQueryTabElement.className = 'mainContent-viewableTab';
   sqlQueryTabElement.sqlQuery = query;
 
   document.querySelector('#mainContent > div').appendChild(sqlQueryTabElement);
 }
 
-document.getElementsByTagName('tab-menu')[0].onSelectTab = function(tabId) {
+$tabMenu.onSelectTab = function(tabId) {
   document.querySelectorAll('.mainContent-viewableTab').forEach(element => {
     if(element.tabId == tabId) {
       element.setAttribute('is-visible', '');
@@ -55,15 +29,35 @@ document.getElementsByTagName('tab-menu')[0].onSelectTab = function(tabId) {
   });
 }
 
-document.getElementsByTagName('tab-menu')[0].onDeleteTab = function(tabId) {
+$tabMenu.onDeleteTab = function(tabId) {
   document.querySelectorAll('.mainContent-viewableTab').forEach(element => {
     if(element.tabId == tabId) {
+      element.releaseDatabaseSession();
       element.parentNode.removeChild(element);
       return;
     }
   });
 }
 
-main();
+/**
+ * Handlers to close connections before exiting
+ */
+window.addEventListener('beforeunload', function (e) {
+  e.preventDefault();
+  e.returnValue = 'confirm';
+});
 
-window.onbeforeunload = function() { return true };
+/**
+ * This won't entirely work because when you are leaving a page
+ * all REST requests will be cancelled. This means that
+ * the database connections will still stay alive. One way to
+ * prevent this is to have a WebSocket; This way, the server will close
+ * the connections once the WebSocket is broken.
+ */
+window.addEventListener('unload', function (e) {
+  e.preventDefault();
+  destroyAllConnections();
+});
+
+
+main();

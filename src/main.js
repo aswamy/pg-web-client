@@ -18,29 +18,6 @@ app.use('/libs/bulma/', express.static(path.join(__dirname, '../node_modules/bul
 }));
 
 /*
-* TODO: REMOVE
-* 
-* Temporary method used to make connections
-* during development; This is to prevent
-* re-connect after every page refresh
-*/
-let ESTABLISHED_CONNECTION = null;
-
-async function establishConnection() {
-
-  ESTABLISHED_CONNECTION = await sessionManager.connect(
-    {
-      host: '127.0.0.1',
-      user: 'test',
-      password: 'test',
-      database: 'testdb',
-      port: 5432,
-      statement_timeout: 90000,
-    }
-  );
-}
-
-/*
 * REQUEST PAYLOAD:
 * {
 *   user: [String],
@@ -52,16 +29,11 @@ async function establishConnection() {
 * }
 */
 app.post('/api/connections', function(req, res) {
-
-  res.send(ESTABLISHED_CONNECTION);
-  
-  /*
   sessionManager.connect(req.body)
     .then((result) => res.send(result))
     .catch(() => {
       res.status(500).end();
     });
-  */
 });
 
 app.get('/api/connections/:id', function(req, res) {
@@ -73,7 +45,11 @@ app.put('/api/connections/:id', function(req, res) {
 });
 
 app.delete('/api/connections/:id', function(req, res) {
-  
+  sessionManager.disconnect(req.params.id)
+    .then((result) => res.send())
+    .catch(() => {
+      res.status(500).end();
+    })
 });
 
 app.get('/api/connections/:id/schemas', async function(req, res) {
@@ -144,10 +120,4 @@ app.post('/api/connections/:id/query', function(req, res) {
     });
 });
 
-establishConnection()
-  .then(() => {
-    app.listen(PORT, () => console.log(`App started http://localhost:${PORT}`));
-  })
-  .catch(error=> {
-    console.log(error);
-  });
+app.listen(PORT, () => console.log(`App started http://localhost:${PORT}`));

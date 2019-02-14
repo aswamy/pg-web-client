@@ -27,7 +27,11 @@ class PGSessionManager {
       return Promise.reject();
     }
 
-    return this.sessions[id].end();
+    let deletedSession = this.sessions[id].end();
+
+    delete this.sessions[id];
+
+    return deletedSession;
   }
 
   get(id) {
