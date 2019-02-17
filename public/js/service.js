@@ -1,10 +1,9 @@
-_HOST = '127.0.0.1';
-_DATABASE = 'testdb';
-_USER = 'test';
-_PASSWORD = 'test';
+const _HOST = '127.0.0.1';
+const _DATABASE = 'testdb';
+const _USER = 'test';
+const _PASSWORD = 'test';
 
-CONNECTION_API = '/api/connections';
-OPEN_CONNECTIONS = {};
+const OPEN_CONNECTIONS = {};
 
 function getConnectionSpecification() {
   return {
@@ -48,6 +47,8 @@ async function destroyConnection(id) {
     console.error(`Could not destroy connection ${id}`);
     return;
   }
+
+  delete OPEN_CONNECTIONS[id];
 
   console.log(`Deleted connection ${id}`);
 }

@@ -1,25 +1,31 @@
-const $tabMenu = document.querySelector('tab-menu');
-const $sideMenu = document.querySelector('side-menu');
-const $homeTab = document.querySelector('home-tab');
-
 async function main() {
   
   const connection = await createConnection();
 
-  $sideMenu.sessionId = connection.id;
-  $homeTab.sessionId = connection.id;
+  $SIDE_MENU.sessionId = connection.id;
+  $HOME_TAB.sessionId = connection.id;
 }
 
-$tabMenu.onNewTab = function(tabId, query = '') {
-  let sqlQueryTabElement = document.createElement('sql-query-tab');
-  sqlQueryTabElement.tabId = tabId;
-  sqlQueryTabElement.className = 'mainContent-viewableTab';
-  sqlQueryTabElement.sqlQuery = query;
+$TAB_MENU.onNewTab = function(tabId, tabType, params = {}) {
 
-  document.querySelector('#mainContent > div').appendChild(sqlQueryTabElement);
+  let tabElement = null;
+
+  if(tabType == 'SQL Query') {
+    tabElement = document.createElement('sql-query-tab');
+  } else if (tabType == 'SQL Table') {
+    tabElement = document.createElement('sql-table-tab');
+  } else {
+    return;
+  }
+
+  tabElement.tabId = tabId;
+  tabElement.className = 'mainContent-viewableTab';
+  tabElement.params = params;
+
+  document.querySelector('#mainContent > div').appendChild(tabElement);
 }
 
-$tabMenu.onSelectTab = function(tabId) {
+$TAB_MENU.onSelectTab = function(tabId) {
   document.querySelectorAll('.mainContent-viewableTab').forEach(element => {
     if(element.tabId == tabId) {
       element.setAttribute('is-visible', '');
@@ -29,7 +35,7 @@ $tabMenu.onSelectTab = function(tabId) {
   });
 }
 
-$tabMenu.onDeleteTab = function(tabId) {
+$TAB_MENU.onDeleteTab = function(tabId) {
   document.querySelectorAll('.mainContent-viewableTab').forEach(element => {
     if(element.tabId == tabId) {
       element.releaseDatabaseSession();
@@ -37,6 +43,15 @@ $tabMenu.onDeleteTab = function(tabId) {
       return;
     }
   });
+}
+
+$SIDE_MENU.onViewTable = function(tableName) {
+  let sqlTableTabElement = document.createElement('sql-table-tab');
+  sqlQueryTabElement.tabId = tabId;
+  sqlQueryTabElement.className = 'mainContent-viewableTab';
+  sqlQueryTabElement.sqlQuery = query;
+
+  document.querySelector('#mainContent > div').appendChild(sqlQueryTabElement);
 }
 
 /**

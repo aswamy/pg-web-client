@@ -1,4 +1,4 @@
-import { LitElement, html } from '@polymer/lit-element';
+import { LitElement, html } from 'lit-element';
 
 class SideMenu extends LitElement {
 
@@ -24,7 +24,8 @@ class SideMenu extends LitElement {
 
   static get properties() {
     return {
-      _sessionId: { type: String, attribute: 'session-id' },
+      _sessionId: { type: String },
+
       schemaMap: { type: Object, attribute: false },
       selectedSchemaMap: { type: Object, attribute: false }
     }

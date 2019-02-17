@@ -1,4 +1,4 @@
-import { LitElement, html } from '@polymer/lit-element';
+import { LitElement, html } from 'lit-element';
 
 class TabMenu extends LitElement {
 
@@ -26,15 +26,15 @@ class TabMenu extends LitElement {
     }
   }
 
-  createTab(query) {
+  createTab(tabType, params) {
     const tabId = new Date().getTime();
     
     this.tabs = [...this.tabs, {
       id: tabId,
-      name: 'SQL Query'
+      name: tabType
     }];
 
-    this.onNewTab(tabId, query);
+    this.onNewTab(tabId, tabType, params);
     this.selectTab(tabId);
   }
 
@@ -87,7 +87,7 @@ class TabMenu extends LitElement {
               }
               </a></li>`
           })}
-          <li><a @click="${this.createTab.bind(this, null)}">
+          <li><a @click="${this.createTab.bind(this, 'SQL Query')}">
             <svg class="tabIcon"><use xlink:href="/icons/icons.svg#plus"></use></svg>
           </a></li>
         </ul>

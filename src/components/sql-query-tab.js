@@ -1,10 +1,13 @@
-import { LitElement, html } from '@polymer/lit-element';
+import { LitElement, html, css } from 'lit-element';
+import { renderSqlTable } from './html-template-util.js';
 
 class SqlQueryTab extends LitElement {
 
   constructor() {
     super();
+
     this.sqlQuery = '';
+
     this.acquireDatabaseSession();
 
     this._assignHotKeys();
@@ -15,8 +18,10 @@ class SqlQueryTab extends LitElement {
     return {
       tabId: { type: Number, attribute: 'tab-id' },
       isVisible: { type: Boolean, attribute: 'is-visible' },
-      sessionId: { type: String, attribute: 'session-id' },
-      sqlQuery: { type: String },
+
+      params : { type: Object },
+
+      sessionId: { type: String, attribute: false },
       // Error from the query run
       _sqlError: { type: String, attribute: false },
       // Result from the query run
@@ -37,8 +42,8 @@ class SqlQueryTab extends LitElement {
       
       let editor = this.shadowRoot.querySelector('.sqlQueryTabEditor');
 
-      editor.value = this.sqlQuery || '';
-      editor.addEventListener('input', (e) => this.sqlQuery = e.target.value);
+      editor.value = this.params.sqlQuery || '';
+      editor.addEventListener('input', (e) => this.params.sqlQuery = e.target.value);
       editor.addEventListener('focus', (e) => this._onViewSqlQueryHistory('close'));
     }
   }
@@ -78,8 +83,8 @@ class SqlQueryTab extends LitElement {
     this._onViewSqlQueryHistory('close');
   }
 
-  _onLaunchNewTab(query) {
-    document.querySelector('tab-menu').createTab(query);
+  _onLaunchNewTab(sqlQuery) {
+    document.querySelector('tab-menu').createTab('SQL Query', { sqlQuery });
   }
 
   _focusTopTextArea(isTop) {
@@ -99,7 +104,7 @@ class SqlQueryTab extends LitElement {
 
   _onSave() {
     const saveFileName = `SQLQuery_${Date.now()}.sql`;
-    const data = [ this.sqlQuery ];
+    const data = [ this.params.sqlQuery ];
     const url = URL.createObjectURL(new File(data, saveFileName, { type: 'text/plain' }));
 
     // Use a fake 'a' tag to let the user download SQL Query
@@ -197,33 +202,7 @@ class SqlQueryTab extends LitElement {
     let resultsTable = null;
 
     if(this._sqlResult) {
-      resultsTable = html`
-        <table class="table is-bordered is-striped is-narrow">
-          <thead>
-            <tr>
-              ${this._sqlResult.fields.map(field => html`<th>${field.name}</th>`)}
-            </tr>
-          </thead>
-          <tbody>
-            ${
-              this._sqlResult.rows.map(row => {
-                return html`<tr>${this._sqlResult.fields.map(field => {
-                  let value = row[field.name];
-
-                  if(value === null || value === undefined) {
-                    return html`<td><em>null<em></td>`;
-                  } else {
-                    if(typeof value == 'object') {
-                      value = JSON.stringify(value);
-                    }
-                    return html`<td title="${value}">${value}</td>`;
-                  }
-                })}</tr>`
-              })
-            }
-          </tbody>
-        </table>
-      `;
+      resultsTable = renderSqlTable(this._sqlResult);
     }
 
     return html`
@@ -236,7 +215,7 @@ class SqlQueryTab extends LitElement {
             
             <div class="sqlQueryTabMenuItem" ?disabled=${false} @click="${this._onRun}"><svg title="Run"><use xlink:href="/icons/icons.svg#run"></use></svg></div>
             <div class="sqlQueryTabMenuItem" ?disabled=${true}><svg title="Stop"><use xlink:href="/icons/icons.svg#stop"></use></svg></div>
-            <div class="sqlQueryTabMenuItem" ?disabled="${!this.sqlQuery}" @click="${this._onSave}"><svg title="Save"><use xlink:href="/icons/icons.svg#save"></use></svg></div>
+            <div class="sqlQueryTabMenuItem" ?disabled="${!this.params.sqlQuery}" @click="${this._onSave}"><svg title="Save"><use xlink:href="/icons/icons.svg#save"></use></svg></div>
             <div class="sqlQueryTabMenuItem" ?disabled=${false}><svg title="Open"><use xlink:href="/icons/icons.svg#open"></use></svg></div>
           </div>
           <div class="sqlQueryTabMenuItemsRight">
@@ -267,6 +246,12 @@ class SqlQueryTab extends LitElement {
         </div>
         <div class="sqlQueryTabResultsMeta">${this._sqlResult ? html`<strong>Records:</strong> ${this._sqlResult.rows.length}` : null }</div>
       </div>
+    `;
+  }
+
+  static get styles() {
+    return css`
+    
     `;
   }
 
@@ -385,7 +370,7 @@ class SqlQueryTab extends LitElement {
         text-overflow: ellipsis;
         overflow: hidden;
       }
-      .sqlQueryTabResults table, .sqlQueryTabResultsErrorMessage {
+      .sqlQueryTabResultsErrorMessage {
         margin: 0.75rem;
         display: inline-block;
       }
@@ -398,13 +383,6 @@ class SqlQueryTab extends LitElement {
         display: grid;
         flex-grow: 1;
         grid-template-rows: 70% 30%;
-      }
-      .sqlQueryTabResults th {
-        background: white;
-        position: sticky;
-        top: -1;
-        z-index: 10;
-        padding: .5em .5em !important;
       }
       .sqlQueryTabResultsMeta {
         height: 28px;
