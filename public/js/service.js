@@ -1,7 +1,7 @@
 const _HOST = '127.0.0.1';
-const _DATABASE = 'testdb';
-const _USER = 'test';
-const _PASSWORD = 'test';
+const _DATABASE = 'pg_web_client_test_db';
+const _USER = 'pg_web_client';
+const _PASSWORD = 'pg_web_client';
 
 const OPEN_CONNECTIONS = {};
 
