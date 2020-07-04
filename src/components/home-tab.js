@@ -1,4 +1,4 @@
-import { LitElement, html } from 'lit-element';
+import { LitElement, css, html } from 'lit-element';
 
 class HomeTab extends LitElement {
 
@@ -20,21 +20,18 @@ class HomeTab extends LitElement {
     }
 
     return html`
-      ${this.htmlStyle}
       <div class="homeTabWrapper">
       </div>
     `;
   }
 
-  get htmlStyle() {
-    return html`
-    <style>
+  static get styles() {
+    return css`
       .homeTabWrapper {
         border: 1px solid #dbdbdb;
         padding: 0.75rem;
         width: 100%;
       }
-    </style>
     `;
   }
 }

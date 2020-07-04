@@ -207,7 +207,7 @@ class SqlQueryTab extends LitElement {
 
     return html`
       
-      ${this.htmlStyle}
+      ${this.externalStyles}
 
       <div class="sqlQueryTabWrapper">
         <div class="sqlQueryTabMenu">
@@ -255,10 +255,14 @@ class SqlQueryTab extends LitElement {
     `;
   }
 
-  get htmlStyle() {
+  get externalStyles() {
     return html`
       <link rel="stylesheet" href="/libs/bulma/bulma.min.css">
-      <style>
+    `;
+  }
+
+  static get styles() {
+    return css`
       .sqlQueryTabMenu {
         display: flex;
         background-color: #f5f5f5;
@@ -393,7 +397,7 @@ class SqlQueryTab extends LitElement {
         text-align: right;
         padding: 0.25rem 0.75rem;
       }
-    </style>`;
+    `;
   }
 }
 

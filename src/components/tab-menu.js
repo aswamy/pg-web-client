@@ -1,4 +1,4 @@
-import { LitElement, html } from 'lit-element';
+import { LitElement, css, html } from 'lit-element';
 
 class TabMenu extends LitElement {
 
@@ -72,7 +72,7 @@ class TabMenu extends LitElement {
 
   render() {
     return html`
-      ${this.htmlStyle}
+      ${this.externalStyles}
       <div class="tabs is-boxed">
         <ul>
           ${this.tabs.map(tab => {
@@ -95,30 +95,33 @@ class TabMenu extends LitElement {
     `;
   }
 
-  get htmlStyle() {
+  get externalStyles() {
     return html`
       <link rel="stylesheet" href="/libs/bulma/bulma.min.css">
-      <style>
-        .tabs {
-          font-size: 0.9rem;
-          margin-bottom: 0.5rem;
-        }
-        .tabCloseBtn {
-          width: 16px;
-          height: 16px;
-          fill: #dbdbdb;
-        }
-        .tabCloseBtn:hover {
-          fill: #4a4a4a;
-        }
-        .tabIcon {
-          width:20px;
-          height:20px;
-        }
-        li.is-active .tabIcon {
-          fill: #3273dc;
-        }
-      </style>
+    `;
+  }
+
+  static get styles() {
+    return css`
+      .tabs {
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+      }
+      .tabCloseBtn {
+        width: 16px;
+        height: 16px;
+        fill: #dbdbdb;
+      }
+      .tabCloseBtn:hover {
+        fill: #4a4a4a;
+      }
+      .tabIcon {
+        width:20px;
+        height:20px;
+      }
+      li.is-active .tabIcon {
+        fill: #3273dc;
+      }
     `;
   }
 }

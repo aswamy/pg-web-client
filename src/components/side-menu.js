@@ -1,4 +1,4 @@
-import { LitElement, html } from 'lit-element';
+import { LitElement, css, html } from 'lit-element';
 
 class SideMenu extends LitElement {
 
@@ -80,7 +80,7 @@ class SideMenu extends LitElement {
 
   render() {
     return html`
-      ${this.htmlStyle}
+      ${this.externalStyles}
       <aside class="menu">
         <p class="menu-label">Schemas</p>
         <div id="pgSchemas">
@@ -123,11 +123,15 @@ class SideMenu extends LitElement {
     `;
   }
 
-  get htmlStyle() {
+  get externalStyles() {
     return html`
     <link rel="stylesheet" href="/libs/bulma/bulma.min.css">
     <link rel="stylesheet" href="/css/loading.css">
-    <style>
+    `;
+  }
+
+  static get styles() { 
+    return css`
       aside {
         user-select: none;
       }
@@ -150,7 +154,6 @@ class SideMenu extends LitElement {
       #pgSchemas {
         margin-bottom: 1.5em;
       }
-    </style>
     `;
   }
 }
