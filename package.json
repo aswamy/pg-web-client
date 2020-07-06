@@ -2,10 +2,11 @@
   "name": "pg-web-client",
   "version": "1.0.0",
   "description": "A light weight PostgreSQL web client",
-  "main": "src/main.js",
+  "main": "src/server.js",
   "scripts": {
-    "webpack": "webpack --config webpack.conf.js",
-    "start": "concurrently \"npm run-script webpack\" \"node src/main.js\""
+    "serve": "webpack --config webpack.conf.js --mode=development",
+    "build": "webpack --config webpack.conf.js --mode=production",
+    "start": "concurrently \"npm run build\" \"node src/server.js\""
   },
   "author": "alok swamy",
   "license": "ISC",
@@ -18,7 +19,8 @@
   },
   "devDependencies": {
     "concurrently": "^5.2.0",
-    "webpack": "^4.28.2",
-    "webpack-cli": "^3.1.2"
+    "copy-webpack-plugin": "^6.0.3",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.12"
   }
 }

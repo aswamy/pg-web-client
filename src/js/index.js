@@ -1,6 +1,12 @@
+import { ConnectionService } from './services/connection_service.js';
+
+const $TAB_MENU = document.querySelector('tab-menu');
+const $SIDE_MENU = document.querySelector('side-menu');
+const $HOME_TAB = document.querySelector('home-tab');
+
 async function main() {
-  
-  const connection = await createConnection();
+
+  const connection = await ConnectionService.createConnection();
 
   $SIDE_MENU.sessionId = connection.id;
   $HOME_TAB.sessionId = connection.id;
@@ -71,8 +77,7 @@ window.addEventListener('beforeunload', function (e) {
  */
 window.addEventListener('unload', function (e) {
   e.preventDefault();
-  destroyAllConnections();
+  ConnectionService.destroyAllConnections();
 });
-
 
 main();

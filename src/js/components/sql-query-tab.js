@@ -1,6 +1,9 @@
 import { LitElement, html, css } from 'lit-element';
 import { renderSqlTable } from './html-template-util.js';
 
+import { CONNECTION_API, ConnectionService } from '../services/connection_service.js';
+import HistoryService from '../services/history_service.js';
+
 class SqlQueryTab extends LitElement {
 
   constructor() {
@@ -58,7 +61,7 @@ class SqlQueryTab extends LitElement {
   }
 
   acquireDatabaseSession() {
-    createConnection().then(connection => {
+    ConnectionService.createConnection().then(connection => {
       this.sessionId = connection.id;
     })
     .catch(error => {
@@ -67,7 +70,7 @@ class SqlQueryTab extends LitElement {
   }
 
   releaseDatabaseSession() {
-    destroyConnection(this.sessionId)
+    ConnectionService.destroyConnection(this.sessionId)
       .catch(error => {
         console.error(`Could not release Database session with id ${this.sessionId}.`);
       });
@@ -151,7 +154,7 @@ class SqlQueryTab extends LitElement {
         this._sqlResult = parsedResult;
         this._focusTopTextArea(false);
 
-        prependSqlQueryHistory(editorContent);
+        HistoryService.prependSqlQueryHistory(editorContent);
       } else {
         this._sqlError = 'SQL Query was executed';
       }
@@ -170,9 +173,8 @@ class SqlQueryTab extends LitElement {
     let dropdownBtn = this.shadowRoot.querySelector('#sqlQueryHistoryBtn');
 
     if(dropdown && dropdownBtn) {
-
       if(operation == 'open') {
-        this._sqlQueryHistory = getSqlQueryHistory();
+        this._sqlQueryHistory = HistoryService.getSqlQueryHistory();
         dropdown.style.display = 'initial';
         dropdownBtn.classList.add('active');
         hotkeys('esc', (event, handler) => {
@@ -257,7 +259,7 @@ class SqlQueryTab extends LitElement {
 
   get externalStyles() {
     return html`
-      <link rel="stylesheet" href="/libs/bulma/bulma.min.css">
+      <link rel="stylesheet" href="/css/bulma.min.css">
     `;
   }
 

@@ -10,12 +10,7 @@ const app = express();
 const sessionManager = new PGSessionManager();
 
 app.use(bodyParser.json());
-app.use('/', express.static(path.join(__dirname, '../public')));
-app.use('/components/', express.static(path.join(__dirname, '../components')));
-app.use('/libs/hotkeys/', express.static(path.join(__dirname, '../node_modules/hotkeys-js/dist')));
-app.use('/libs/bulma/', express.static(path.join(__dirname, '../node_modules/bulma/css'), {
-  maxAge: '1d'
-}));
+app.use('/', express.static(path.join(__dirname, '../dist')));
 
 /*
 * REQUEST PAYLOAD:

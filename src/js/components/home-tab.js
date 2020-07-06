@@ -21,6 +21,7 @@ class HomeTab extends LitElement {
 
     return html`
       <div class="homeTabWrapper">
+        <canvas id="pg-diagram"></canvas>
       </div>
     `;
   }

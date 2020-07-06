@@ -16,7 +16,9 @@ Complete|Priority|Description
 :x:|A|Show meta-information about tables
 :heavy_check_mark:|B|Allow user to open multiple tabs
 :x:|B|Set/Restore Backups
+:heavy_check_mark:|B|Run SQL Queries using hotkeys
 :x:|C|Connect to multiple databases
+:heavy_check_mark:|C|Download SQL Query to desktop
 
 # Developer Goals
 
@@ -28,3 +30,12 @@ A list of items I would like to do to make it fun for me (as the developer) :D
 - Use Babel to allow better compatibility with older browsers
 - Use a diagramming library to make interesting visuals for tables and their relations
 - Make a native application using Electron (or something similar)
+
+# Development
+
+```
+npm ci
+npm start
+```
+
+Open `localhost:3000`

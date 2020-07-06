@@ -97,7 +97,7 @@ class TabMenu extends LitElement {
 
   get externalStyles() {
     return html`
-      <link rel="stylesheet" href="/libs/bulma/bulma.min.css">
+      <link rel="stylesheet" href="/css/bulma.min.css">
     `;
   }
 

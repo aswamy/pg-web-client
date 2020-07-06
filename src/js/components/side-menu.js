@@ -1,4 +1,5 @@
 import { LitElement, css, html } from 'lit-element';
+import { CONNECTION_API } from '../services/connection_service.js';
 
 class SideMenu extends LitElement {
 
@@ -52,7 +53,6 @@ class SideMenu extends LitElement {
   }
 
   async fetchSchemas() {
-
     const schemasResponse = await fetch(`${CONNECTION_API}/${this.sessionId}/schemas`);
   
     if(!schemasResponse.ok) {
@@ -125,7 +125,7 @@ class SideMenu extends LitElement {
 
   get externalStyles() {
     return html`
-    <link rel="stylesheet" href="/libs/bulma/bulma.min.css">
+    <link rel="stylesheet" href="/css/bulma.min.css">
     <link rel="stylesheet" href="/css/loading.css">
     `;
   }
