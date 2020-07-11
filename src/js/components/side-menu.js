@@ -1,4 +1,6 @@
 import { LitElement, css, html } from 'lit-element';
+import { classMap } from 'lit-html/directives/class-map';
+
 import { CONNECTION_API } from '../services/connection_service.js';
 
 class SideMenu extends LitElement {
@@ -20,26 +22,27 @@ class SideMenu extends LitElement {
     */
     this.selectedSchemaMap = {};
 
+    /*
+    * { schema: <string>, table: <string> }
+    */
+    this.selectedSchemaAndTable = null;
+
     this._schemaSubcategories = ['function', 'table'];
   }
 
   static get properties() {
     return {
-      _sessionId: { type: String },
+      sessionId: { type: String, attribute: 'session-id' },
 
       schemaMap: { type: Object, attribute: false },
       selectedSchemaMap: { type: Object, attribute: false }
     }
   }
 
-  set sessionId(id) {
-    this._sessionId = id;
-
-    this.fetchSchemas();
-  }
-
-  get sessionId() {
-    return this._sessionId;
+  updated(changedProperties) {
+    if(changedProperties.has('sessionId') && this.sessionId) {
+      this.fetchSchemas();
+    }
   }
 
   getSchemaNames(filterUserCreated) {
@@ -71,6 +74,24 @@ class SideMenu extends LitElement {
     }
   }
 
+  _onTableClick(schemaName, tableName) {
+
+    if(this.selectedSchemaAndTable
+      && this.selectedSchemaAndTable.schema == schemaName
+      && this.selectedSchemaAndTable.table == tableName) {
+      this.selectedSchemaAndTable = null;
+    } else {
+      this.selectedSchemaAndTable = { schema: schemaName, table: tableName };
+    }
+
+    let event = new CustomEvent('select-schema-table', {
+      detail: this.selectedSchemaAndTable
+    });
+    this.dispatchEvent(event);
+
+    this.requestUpdate();
+  }
+
   _onSchemaSubcategoryClick(schemaName, subcategory) {
     if(this.selectedSchemaMap.hasOwnProperty(schemaName)) {
       this.selectedSchemaMap[schemaName][subcategory] = !this.selectedSchemaMap[schemaName][subcategory];
@@ -89,7 +110,10 @@ class SideMenu extends LitElement {
             ${
               this.getSchemaNames(true).map(schemaName => {
                 return html`<li>
-                  <a @click="${this._onSchemaClick.bind(this, schemaName)}" class="menuItemLink">${schemaName}</a>
+                  <a @click="${this._onSchemaClick.bind(this, schemaName)}"
+                    class=${classMap({ "is-schema-active": this.selectedSchemaAndTable && this.selectedSchemaAndTable.schema == schemaName, "menuItemLink": true })}>
+                    ${schemaName}
+                  </a>
                   ${
                     this.selectedSchemaMap[schemaName] ? html`
                       ${
@@ -99,8 +123,14 @@ class SideMenu extends LitElement {
                             <p @click=${this._onSchemaSubcategoryClick.bind(this, schemaName, subcategory)} class="menu-label">${subcategory} (${this.schemaMap[schemaName][subcategory].length})</p>
                             ${
                               this.selectedSchemaMap[schemaName][subcategory] ?
-                              this.schemaMap[schemaName][subcategory].map(subcategoryName => html`<li><a class="menuItemLink">${subcategoryName}</a></li>`) :
-                              null
+                              this.schemaMap[schemaName][subcategory].map(subcategoryName => html`
+                                <li>
+                                  <a @click="${() => subcategory == 'table' ? this._onTableClick(schemaName, subcategoryName) : null }"
+                                  class=${classMap({ "is-active": this.selectedSchemaAndTable && this.selectedSchemaAndTable.schema == schemaName && this.selectedSchemaAndTable.table == subcategoryName, "menuItemLink": true })}>
+                                    ${subcategoryName}
+                                  </a>
+                                </li>`)
+                              : null
                             }
                           </ul>`;
                         })
@@ -153,6 +183,9 @@ class SideMenu extends LitElement {
       }
       #pgSchemas {
         margin-bottom: 1.5em;
+      }
+      .menu-list a.is-schema-active {
+        background-color: #dbdbdb;
       }
     `;
   }

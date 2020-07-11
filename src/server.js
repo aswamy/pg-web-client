@@ -73,6 +73,78 @@ app.get('/api/connections/:id/schemas', async function(req, res) {
   }, {}));
 });
 
+app.get('/api/connections/:id/schemas/:schema_name/tables/:table_name', async function(req, res) {
+
+  const client = sessionManager.get(req.params.id);
+
+  let schema = req.params.schema_name;
+  let table = req.params.table_name;
+
+  const columnQueryResult = await client.query(`
+    SELECT
+      c.column_name,
+      c.data_type,
+      c.character_maximum_length max_length,
+      c.is_nullable,
+      c.column_default default_value
+    FROM
+      information_schema.columns c
+    WHERE
+      table_schema = '${schema}'
+      AND table_name = '${table}'
+  `);
+
+  const constraintQueryResult = await client.query(`
+    SELECT
+      tc.constraint_name,
+      tc.constraint_type,
+      kcu.column_name,
+      ccu.table_schema AS foreign_table_schema,
+      ccu.table_name AS foreign_table_name,
+    ccu.column_name AS foreign_column_name
+    FROM
+      information_schema.table_constraints tc
+      JOIN information_schema.key_column_usage kcu ON tc.constraint_name = kcu.constraint_name AND tc.table_schema = kcu.table_schema
+      JOIN information_schema.constraint_column_usage AS ccu ON ccu.constraint_name = tc.constraint_name AND ccu.table_schema = tc.table_schema
+      WHERE
+      tc.table_schema = '${schema}'
+      AND tc.table_name = '${table}'
+  `);
+
+  let columnSorter = (columnA, columnB) => columnA.column_name.localeCompare(columnB.column_name);
+
+  let result = columnQueryResult.rows
+    .map(columnData => {
+      let { is_nullable, ...result } = columnData;
+      result.is_nullable = is_nullable == 'YES';
+
+      let constraint = constraintQueryResult.rows.find(constraintData => constraintData.column_name == columnData.column_name);
+
+      result.constraint_type = constraint ? constraint.constraint_type : null;
+
+      return result;
+    })
+    .sort((columnA, columnB) => {
+      if(columnA.constraint_type == columnB.constraint_type) {
+        return columnA.column_name.localeCompare(columnB.column_name);
+      }
+
+      if(columnA.constraint_type == 'PRIMARY KEY') return -1;
+      if(columnB.constraint_type == 'PRIMARY KEY') return 1;
+      
+      if(columnA.constraint_type == 'FOREIGN KEY') return -1;
+      if(columnB.constraint_type == 'FOREIGN KEY') return 1;
+
+      return 0;
+    });
+
+  res.send({
+    columns: result,
+    primaryKeys: constraintQueryResult.rows.filter(column => column.constraint_type == 'PRIMARY KEY'),
+    foreignKeys: constraintQueryResult.rows.filter(column => column.constraint_type == 'FOREIGN KEY'),
+  });
+});
+
 app.get('/api/connections/:id/users', async function(req, res) {
 
   const client = sessionManager.get(req.params.id);

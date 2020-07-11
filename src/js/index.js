@@ -1,15 +1,32 @@
 import { ConnectionService } from './services/connection_service.js';
 
 const $TAB_MENU = document.querySelector('tab-menu');
-const $SIDE_MENU = document.querySelector('side-menu');
-const $HOME_TAB = document.querySelector('home-tab');
 
 async function main() {
 
   const connection = await ConnectionService.createConnection();
 
-  $SIDE_MENU.sessionId = connection.id;
-  $HOME_TAB.sessionId = connection.id;
+  let sideMenu = document.createElement('side-menu');
+  sideMenu.setAttribute('session-id', connection.id);
+
+  let homeTab = document.createElement('home-tab');
+  homeTab.setAttribute('session-id', connection.id);
+  homeTab.setAttribute('tab-id', 0);
+  homeTab.setAttribute('is-visible', '');
+  homeTab.classList.add("mainContent-viewableTab");
+
+  sideMenu.addEventListener('select-schema-table', (event) => {
+    if(event.detail) {
+      homeTab.setAttribute('selected-schema', event.detail.schema);
+      homeTab.setAttribute('selected-table', event.detail.table);
+    } else {
+      homeTab.removeAttribute('selected-schema');
+      homeTab.removeAttribute('selected-table');
+    }
+  });
+
+  document.querySelector('#sidebarWrapper').appendChild(sideMenu);
+  document.querySelector('#mainContent > div').appendChild(homeTab);
 }
 
 $TAB_MENU.onNewTab = function(tabId, tabType, params = {}) {
@@ -49,15 +66,6 @@ $TAB_MENU.onDeleteTab = function(tabId) {
       return;
     }
   });
-}
-
-$SIDE_MENU.onViewTable = function(tableName) {
-  let sqlTableTabElement = document.createElement('sql-table-tab');
-  sqlQueryTabElement.tabId = tabId;
-  sqlQueryTabElement.className = 'mainContent-viewableTab';
-  sqlQueryTabElement.sqlQuery = query;
-
-  document.querySelector('#mainContent > div').appendChild(sqlQueryTabElement);
 }
 
 /**
