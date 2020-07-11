@@ -18,9 +18,6 @@ class TabMenu extends LitElement {
 
   static get properties() {
     return {
-      onNewTab: { type: Function },
-      onDeleteTab: { type: Function },
-      onSelectTab: { type: Function },
       tabs: { type: Array, attribute: false },
       selectedTabId: { type: Number }
     }
@@ -34,8 +31,13 @@ class TabMenu extends LitElement {
       name: tabType
     }];
 
-    this.onNewTab(tabId, tabType, params);
-    this.selectTab(tabId);
+    this.dispatchEvent(new CustomEvent('new-tab', {
+      detail: {
+        tabId,
+        tabType,
+        params
+      }
+    }));
   }
 
   deleteTab(tabId, event) {
@@ -62,12 +64,21 @@ class TabMenu extends LitElement {
       this.selectTab(newTabToFocus.id);
     }
     this.tabs = this.tabs.filter(t => t.id != tabId);
-    this.onDeleteTab(tabId);
+    this.dispatchEvent(new CustomEvent('delete-tab', {
+      detail: {
+        tabId
+      }
+    }));
   }
 
   selectTab(tabId) {
     this.selectedTabId = tabId;
-    this.onSelectTab(tabId);
+
+    this.dispatchEvent(new CustomEvent('select-tab', {
+      detail: {
+        tabId
+      }
+    }));
   }
 
   render() {
