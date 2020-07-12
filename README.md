@@ -12,9 +12,11 @@ Complete|Priority|Description
 :heavy_check_mark:|A|Display SQL Functions in side panel
 :heavy_check_mark:|A|Display SQL Tables in side panel
 :heavy_check_mark:|A|Store and access history of SQL queries
+:x:|A|Show all records for a SQL Table
 :x:|A|Visualize Table and relations in a diagram
-:x:|A|Show meta-information about tables
-:heavy_check_mark:|B|Allow user to open multiple tabs
+:heavy_check_mark:|A|Show meta-information about tables
+:heavy_check_mark:|B|Allow user to open multiple SQL tabs
+:x:|B|Paginate results of SQL queries
 :x:|B|Set/Restore Backups
 :heavy_check_mark:|B|Run SQL Queries using hotkeys
 :x:|C|Connect to multiple databases
@@ -27,9 +29,10 @@ A list of items I would like to do to make it fun for me (as the developer) :D
 - Develop an web application without using a full framework like Angular, React, or Vue.js
 - Use Polymer projects to build web components
 - Minify assets using Webpack
-- Use Babel to allow better compatibility with older browsers
+- Use Babel to allow better compatibility with older browsers (currently only works with a newer version of Chrome)
 - Use a diagramming library to make interesting visuals for tables and their relations
 - Make a native application using Electron (or something similar)
+- Only build required CSS components using Webpack and Sass loader
 
 # Development
 
