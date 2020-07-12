@@ -230,8 +230,8 @@ class SqlQueryTab extends LitElement {
                   ${this._sqlQueryHistory.map(historicQuery => html`
                     <div class="dropdown-item columns">
                       <div title="${historicQuery}" class="column sqlQueryHistoryMessage">${historicQuery}</div>
-                      <div @click="${this._onCopy.bind(this, historicQuery)}" class="column sqlQueryHistoryMenuIcon"><svg title="Copy"><use xlink:href="/icons/icons.svg#copy"></use></svg></div>
-                      <div @click="${this._onLaunchNewTab.bind(this, historicQuery)}" class="column sqlQueryHistoryMenuIcon"><svg title="Open"><use xlink:href="/icons/icons.svg#launch"></use></svg></div>
+                      <div @click="${this._onCopy.bind(this, historicQuery)}" title="Copy SQL to clipboard" class="column sqlQueryHistoryMenuIcon"><svg title="Copy"><use xlink:href="/icons/icons.svg#copy"></use></svg></div>
+                      <div @click="${this._onLaunchNewTab.bind(this, historicQuery)}" title="Open SQL in new tab" class="column sqlQueryHistoryMenuIcon"><svg title="Open"><use xlink:href="/icons/icons.svg#launch"></use></svg></div>
                     </div>
                   `)}
                 </div>
@@ -251,12 +251,6 @@ class SqlQueryTab extends LitElement {
     `;
   }
 
-  static get styles() {
-    return css`
-    
-    `;
-  }
-
   get externalStyles() {
     return html`
       <link rel="stylesheet" href="/css/bulma.min.css">
@@ -265,12 +259,17 @@ class SqlQueryTab extends LitElement {
 
   static get styles() {
     return css`
+      :host {
+        --sql-query-tab-menu-height: 33px;
+        --sql-query-result-meta-height: 28px;
+      }
       .sqlQueryTabMenu {
         display: flex;
-        background-color: #f5f5f5;
-        border-color: #dbdbdb;
+        background-color: var(--alternate-highlight-color-light);
+        border-color: var(--alternate-highlight-color-dark);
         border-style: solid;
         border-width: 1px 1px 0px 1px;
+        height: var(--sql-query-tab-menu-height);
       }
       .sqlQueryTabMenu .dropdown-menu {
         padding-top: 10px;
@@ -295,7 +294,7 @@ class SqlQueryTab extends LitElement {
         width: 14px;
       }
       .sqlQueryHistoryMenuIcon:hover {
-        fill: #3273dc;
+        fill: var(--main-highlight-color);
         cursor: pointer;
       }
       .sqlQueryTabMenu .dropdown-menu .dropdown-item {
@@ -303,14 +302,14 @@ class SqlQueryTab extends LitElement {
         padding: 0;
       }
       .dropdown-item + .dropdown-item {
-        border-top: 1px solid #f5f5f5;
+        border-top: 1px solid var(--alternate-highlight-color-light);
       }
       .sqlQueryTabMenu .dropdown-menu .dropdown-item:hover {
-        background-color: #f5f5f5;
+        background-color: var(--alternate-highlight-color-light);
       }
       .sqlQueryTabMenuItem {
         padding: 0.25rem 0.5rem;
-        border-color: #dbdbdb;
+        border-color: var(--alternate-highlight-color-dark);
         border-style: solid;
         border-width: 0px 1px 0px 0px;
         cursor: pointer;
@@ -320,10 +319,10 @@ class SqlQueryTab extends LitElement {
         border-width: 0px 1px 0px 1px;
       }
       .sqlQueryTabMenuItem:hover, .sqlQueryTabMenuItem.active {
-        background-color: #dbdbdb;
+        background-color: var(--alternate-highlight-color-dark);
       }
       .sqlQueryTabMenuItem:active, .sqlQueryTabMenuItem.active {
-        fill: #3273dc;
+        fill: var(--main-highlight-color);
       }
       .sqlQueryTabMenuItem[disabled] {
         background-color: inherit !important;
@@ -334,7 +333,7 @@ class SqlQueryTab extends LitElement {
         width: 24px;
       }
       .sqlQueryTabMenuItem[disabled] > svg {
-        fill: #dbdbdb;
+        fill: var(--alternate-highlight-color-dark);
       }
       .sqlQueryTabMenuItemsRight, .sqlQueryTabMenuItemsLeft {
         display: flex;
@@ -353,7 +352,7 @@ class SqlQueryTab extends LitElement {
       .sqlQueryTabEditor, .sqlQueryTabResults {
         font-family: monospace;
         font-size: 14px;
-        border: 1px solid #dbdbdb;
+        border: 1px solid var(--alternate-highlight-color-dark);
         resize: none;
       }
       .sqlQueryTabEditor {
@@ -381,23 +380,22 @@ class SqlQueryTab extends LitElement {
         display: inline-block;
       }
       .sqlQueryTabWrapper {
-        display: flex;
-        flex-direction: column;
         width: 100%;
+        height: 100%;
       }
       .sqlResizableContent {
         display: grid;
-        flex-grow: 1;
         grid-template-rows: 70% 30%;
+        height: calc(100% - var(--sql-query-result-meta-height) - var(--sql-query-tab-menu-height));
       }
       .sqlQueryTabResultsMeta {
-        height: 28px;
-        background-color: #f5f5f5;
-        border: 1px solid #dbdbdb;
+        background-color: var(--alternate-highlight-color-light);
+        border: 1px solid var(--alternate-highlight-color-dark);
         border-top: 0px;
         font-size: 12px;
         text-align: right;
         padding: 0.25rem 0.75rem;
+        height: var(--sql-query-result-meta-height);
       }
     `;
   }

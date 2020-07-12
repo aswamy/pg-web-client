@@ -32,11 +32,13 @@ class HomeTab extends LitElement {
         ${
           this.tableDataToDisplay ?
           html`
+            <h1 class="title">${this.selectedSchema}</h1>
+            <h2 class="subtitle">${this.selectedTable}</h2>
             <div class="table-container">
               <table class="table is-striped is-narrow is-bordered">
                 <thead>
                   <tr>
-                    <th></th>
+                    <th>Constraint</th>
                     <th>Column Name</th>
                     <th>Data Type</th>
                     <th>Default Value</th>
@@ -87,7 +89,7 @@ class HomeTab extends LitElement {
   static get styles() {
     return css`
       .homeTabWrapper {
-        border: 1px solid #dbdbdb;
+        border: 1px solid var(--alternate-highlight-color-dark);
         padding: 0.75rem;
         width: 100%;
       }

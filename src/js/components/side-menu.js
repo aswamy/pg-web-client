@@ -185,7 +185,7 @@ class SideMenu extends LitElement {
         margin-bottom: 1.5em;
       }
       .menu-list a.is-schema-active {
-        background-color: #dbdbdb;
+        background-color: var(--alternate-highlight-color-dark);
       }
     `;
   }

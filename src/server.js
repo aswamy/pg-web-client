@@ -135,6 +135,9 @@ app.get('/api/connections/:id/schemas/:schema_name/tables/:table_name', async fu
       if(columnA.constraint_type == 'FOREIGN KEY') return -1;
       if(columnB.constraint_type == 'FOREIGN KEY') return 1;
 
+      if(columnA.constraint_type == 'UNIQUE') return -1;
+      if(columnB.constraint_type == 'UNIQUE') return 1;
+
       return 0;
     });
 

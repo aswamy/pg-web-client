@@ -1,5 +1,14 @@
-html {
+:root {
+  --main-highlight-color: #3273dc;
+  --alternate-highlight-color-light: #f5f5f5;
+  --alternate-highlight-color-dark: #dbdbdb;
+  --alternate-highlight-color-darker: #4a4a4a;
+}
+body {
   overflow: hidden;
+}
+tab-menu {
+  height: 45px;
 }
 #connection {
   text-transform: uppercase;
@@ -9,7 +18,7 @@ html {
 }
 #connection .connectionAddress {
   font-size: 12px;
-  color: #f5f5f5;
+  color: var(--alternate-highlight-color-light);
   display: none;
 }
 #connection:hover .connectionAddress {
@@ -19,7 +28,7 @@ html {
   overflow-x: hidden;
   overflow-y: auto;
   width: 300px;
-  border: #dbdbdb 0px solid;
+  border: var(--alternate-highlight-color-dark) 0px solid;
   border-right-width: 1px;
 }
 #mainContent {
@@ -55,5 +64,6 @@ html {
   display: flex;
 }
 .mainContent-viewableTab[is-visible] {
+  height: calc(100% - 45px);
   flex-grow: 1;
 }

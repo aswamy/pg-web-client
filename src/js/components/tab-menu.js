@@ -121,17 +121,17 @@ class TabMenu extends LitElement {
       .tabCloseBtn {
         width: 16px;
         height: 16px;
-        fill: #dbdbdb;
+        fill: var(--alternate-highlight-color-dark);
       }
       .tabCloseBtn:hover {
-        fill: #4a4a4a;
+        fill: var(--alternate-highlight-color-darker);
       }
       .tabIcon {
         width:20px;
         height:20px;
       }
       li.is-active .tabIcon {
-        fill: #3273dc;
+        fill: var(--main-highlight-color);
       }
     `;
   }
