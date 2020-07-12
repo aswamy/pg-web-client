@@ -1,6 +1,8 @@
 import { LitElement, html, css } from 'lit-element';
-import { renderSqlTable } from './html-template-util.js';
+import { toast as superToast, toast } from "bulma-toast";
+import hotkeys from 'hotkeys-js';
 
+import { renderSqlTable } from './html-template-util.js';
 import { CONNECTION_API, ConnectionService } from '../services/connection_service.js';
 import HistoryService from '../services/history_service.js';
 
@@ -84,6 +86,15 @@ class SqlQueryTab extends LitElement {
     document.execCommand('copy');
     this.shadowRoot.removeChild(element);
     this._onViewSqlQueryHistory('close');
+
+    toast({
+      message: 'SQL has been copied to your clipboard',
+      type: 'is-link',
+      duration: 3000,
+      opacity: 0.9,
+      position: 'bottom-right',
+      closeOnClick: true,
+    });
   }
 
   _onLaunchNewTab(sqlQuery) {
@@ -215,15 +226,15 @@ class SqlQueryTab extends LitElement {
         <div class="sqlQueryTabMenu">
           <div class="sqlQueryTabMenuItemsLeft">
             
-            <div class="sqlQueryTabMenuItem" ?disabled=${false} @click="${this._onRun}"><svg title="Run"><use xlink:href="/icons/icons.svg#run"></use></svg></div>
-            <div class="sqlQueryTabMenuItem" ?disabled=${true}><svg title="Stop"><use xlink:href="/icons/icons.svg#stop"></use></svg></div>
-            <div class="sqlQueryTabMenuItem" ?disabled="${!this.params.sqlQuery}" @click="${this._onSave}"><svg title="Save"><use xlink:href="/icons/icons.svg#save"></use></svg></div>
-            <div class="sqlQueryTabMenuItem" ?disabled=${false}><svg title="Open"><use xlink:href="/icons/icons.svg#open"></use></svg></div>
+            <div class="sqlQueryTabMenuItem" ?disabled=${false} @click="${this._onRun}" title="Run"><svg><use xlink:href="/icons/icons.svg#run"></use></svg></div>
+            <div class="sqlQueryTabMenuItem" ?disabled=${true} title="Stop"><svg><use xlink:href="/icons/icons.svg#stop"></use></svg></div>
+            <div class="sqlQueryTabMenuItem" ?disabled=${!this.params.sqlQuery} @click="${this._onSave}" title="Save"><svg><use xlink:href="/icons/icons.svg#save"></use></svg></div>
+            <div class="sqlQueryTabMenuItem" ?disabled=${false} title="Open"><svg><use xlink:href="/icons/icons.svg#open"></use></svg></div>
           </div>
           <div class="sqlQueryTabMenuItemsRight">
             <div class="dropdown is-right is-active">
               <div class="dropdown-trigger">
-                <div id="sqlQueryHistoryBtn" class="sqlQueryTabMenuItem" @click="${this._onViewSqlQueryHistory.bind(this)}"><svg title="History"><use xlink:href="/icons/icons.svg#history"></use></svg></div>
+                <div id="sqlQueryHistoryBtn" class="sqlQueryTabMenuItem" @click="${this._onViewSqlQueryHistory.bind(this)}" title="History"><svg><use xlink:href="/icons/icons.svg#history"></use></svg></div>
               </div>
               <div id="sqlQueryHistoryDropdown" style="display:none" class="dropdown-menu">
                 <div class="dropdown-content">

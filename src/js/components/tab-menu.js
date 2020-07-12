@@ -133,6 +133,9 @@ class TabMenu extends LitElement {
       li.is-active .tabIcon {
         fill: var(--main-highlight-color);
       }
+      .tabs li.is-active a {
+        height: 36px;
+      }
     `;
   }
 }

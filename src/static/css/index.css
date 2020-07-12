@@ -4,7 +4,7 @@
   --alternate-highlight-color-dark: #dbdbdb;
   --alternate-highlight-color-darker: #4a4a4a;
 }
-body {
+html {
   overflow: hidden;
 }
 tab-menu {
@@ -31,9 +31,6 @@ tab-menu {
   border: var(--alternate-highlight-color-dark) 0px solid;
   border-right-width: 1px;
 }
-#mainContent {
-  width: calc(100% - 300px);
-}
 #mainContent > div {
   padding: .75rem;
   display: flex;
@@ -47,8 +44,12 @@ tab-menu {
   margin-bottom: 0.5rem;
 }
 #mainContainer {
-  height: calc(100vh - 3.25rem);
   margin-bottom: 0px;
+  display: grid;
+  grid-template-columns: 300px calc(100% - 300px);
+}
+#mainContainer > div {
+  height: calc(100vh - 3.25rem);
 }
 .icon {
   cursor: pointer;

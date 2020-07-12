@@ -126,7 +126,8 @@ class SideMenu extends LitElement {
                               this.schemaMap[schemaName][subcategory].map(subcategoryName => html`
                                 <li>
                                   <a @click="${() => subcategory == 'table' ? this._onTableClick(schemaName, subcategoryName) : null }"
-                                  class=${classMap({ "is-active": this.selectedSchemaAndTable && this.selectedSchemaAndTable.schema == schemaName && this.selectedSchemaAndTable.table == subcategoryName, "menuItemLink": true })}>
+                                  class=${classMap({ "is-active": this.selectedSchemaAndTable && this.selectedSchemaAndTable.schema == schemaName && this.selectedSchemaAndTable.table == subcategoryName, "menuItemLink": true })}
+                                  .title=${subcategoryName}>
                                     ${subcategoryName}
                                   </a>
                                 </li>`)
