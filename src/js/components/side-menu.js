@@ -1,5 +1,6 @@
 import { LitElement, css, html } from 'lit-element';
 import { classMap } from 'lit-html/directives/class-map';
+import { copyToClipboard } from './clipboard.util.js';
 
 import { CONNECTION_API } from '../services/connection_service.js';
 
@@ -43,6 +44,33 @@ class SideMenu extends LitElement {
     if(changedProperties.has('sessionId') && this.sessionId) {
       this.fetchSchemas();
     }
+  }
+
+  _tableContextMenu(e, schema, table) {
+    e.preventDefault();
+
+    this.dispatchEvent(new CustomEvent('select-table-context-menu', {
+      detail: {
+        coordinates: [e.clientX, e.clientY],
+        options: [
+          {
+            title: 'Copy table name',
+            select: () => copyToClipboard(table, 'Table name has been copied to your clipboard')
+          },
+          {
+            title: 'Copy table path',
+            select: () => copyToClipboard(`${schema}.${table}`, 'Table path has been copied to your clipboard')
+          },
+          {
+            title: 'Backup table',
+            select: () => {},
+            disabled: true
+          }
+        ]
+      }
+    }));
+
+    return false;
   }
 
   getSchemaNames(filterUserCreated) {
@@ -104,6 +132,7 @@ class SideMenu extends LitElement {
       ${this.externalStyles}
       <aside class="menu">
         <p class="menu-label">Schemas</p>
+        <div id="contextMenuContainer"></div>
         <div id="pgSchemas">
           ${this.schemaMap ? null : html`<div class="lds-dual-ring"></div>` }
           <ul class="menu-list animated fadeIn">
@@ -126,7 +155,8 @@ class SideMenu extends LitElement {
                               this.schemaMap[schemaName][subcategory].map(subcategoryName => html`
                                 <li>
                                   <a @click="${() => subcategory == 'table' ? this._onTableClick(schemaName, subcategoryName) : null }"
-                                  class=${classMap({ "is-active": this.selectedSchemaAndTable && this.selectedSchemaAndTable.schema == schemaName && this.selectedSchemaAndTable.table == subcategoryName, "menuItemLink": true })}
+                                  class=${classMap({ "is-active": this.selectedSchemaAndTable && this.selectedSchemaAndTable.schema == schemaName && this.selectedSchemaAndTable.table == subcategoryName, "menuItemLink": true, "hasContextMenuTable": subcategory == 'table' })}
+                                  @contextmenu=${(e) => this._tableContextMenu(e, schemaName, subcategoryName)}
                                   .title=${subcategoryName}>
                                     ${subcategoryName}
                                   </a>
@@ -143,13 +173,6 @@ class SideMenu extends LitElement {
             }
           </ul>
         </div>
-        <!--
-        <p class="menu-label">Users</p>
-        <div id="pgUsers">
-          <div class="lds-dual-ring"></div>
-          <ul class="menu-list animated fadeIn"></ul>
-        </div>
-        -->
       </aside>
     `;
   }

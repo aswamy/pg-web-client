@@ -3,13 +3,23 @@ import { ConnectionService } from './services/connection_service.js';
 async function main() {
   const connection = await ConnectionService.createConnection();
 
+  let contextMenu = createContextMenuElement();
+
   let homeTab = createHomeTabElement(connection);
-  let sideMenu = createSideMenuElement(connection, homeTab);
+  let sideMenu = createSideMenuElement(connection, homeTab, contextMenu);
   let tabMenu = createTabMenuElement();
 
   document.querySelector('#sidebarWrapper').appendChild(sideMenu);
   document.querySelector('#mainContent > div').appendChild(tabMenu);
   document.querySelector('#mainContent > div').appendChild(homeTab);
+
+  let body = document.getElementsByTagName("body")[0];
+  body.insertBefore(contextMenu, body.childNodes[0]);
+}
+
+function createContextMenuElement() {
+  let contextMenu = document.createElement('context-menu');
+  return contextMenu;
 }
 
 function createHomeTabElement(connection) {
@@ -58,7 +68,7 @@ function createTabMenuElement() {
   return tabMenu;
 }
 
-function createSideMenuElement(connection, homeTab) {
+function createSideMenuElement(connection, homeTab, contextMenu) {
   let sideMenu = document.createElement('side-menu');
   sideMenu.setAttribute('session-id', connection.id);
   sideMenu.addEventListener('select-schema-table', (event) => {
@@ -69,6 +79,9 @@ function createSideMenuElement(connection, homeTab) {
       homeTab.removeAttribute('selected-schema');
       homeTab.removeAttribute('selected-table');
     }
+  });
+  sideMenu.addEventListener('select-table-context-menu', (event) => {
+    contextMenu.constructContextMenu(event.detail.coordinates, event.detail.options);
   });
   return sideMenu;
 }

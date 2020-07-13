@@ -1,8 +1,8 @@
 import { LitElement, html, css } from 'lit-element';
-import { toast as superToast, toast } from "bulma-toast";
 import hotkeys from 'hotkeys-js';
 
 import { renderSqlTable } from './html-template-util.js';
+import { copyToClipboard } from './clipboard.util.js';
 import { CONNECTION_API, ConnectionService } from '../services/connection_service.js';
 import HistoryService from '../services/history_service.js';
 
@@ -76,25 +76,6 @@ class SqlQueryTab extends LitElement {
       .catch(error => {
         console.error(`Could not release Database session with id ${this.sessionId}.`);
       });
-  }
-
-  _onCopy(query) {
-    const element = document.createElement('textarea');
-    element.value = query;
-    this.shadowRoot.appendChild(element);
-    element.select();
-    document.execCommand('copy');
-    this.shadowRoot.removeChild(element);
-    this._onViewSqlQueryHistory('close');
-
-    toast({
-      message: 'SQL has been copied to your clipboard',
-      type: 'is-link',
-      duration: 3000,
-      opacity: 0.9,
-      position: 'bottom-right',
-      closeOnClick: true,
-    });
   }
 
   _onLaunchNewTab(sqlQuery) {
@@ -241,7 +222,7 @@ class SqlQueryTab extends LitElement {
                   ${this._sqlQueryHistory.map(historicQuery => html`
                     <div class="dropdown-item columns">
                       <div title="${historicQuery}" class="column sqlQueryHistoryMessage">${historicQuery}</div>
-                      <div @click="${this._onCopy.bind(this, historicQuery)}" title="Copy SQL to clipboard" class="column sqlQueryHistoryMenuIcon"><svg title="Copy"><use xlink:href="/icons/icons.svg#copy"></use></svg></div>
+                      <div @click="${() => copyToClipboard(historicQuery, 'SQL has been copied to your clipboard')}" title="Copy SQL to clipboard" class="column sqlQueryHistoryMenuIcon"><svg title="Copy"><use xlink:href="/icons/icons.svg#copy"></use></svg></div>
                       <div @click="${this._onLaunchNewTab.bind(this, historicQuery)}" title="Open SQL in new tab" class="column sqlQueryHistoryMenuIcon"><svg title="Open"><use xlink:href="/icons/icons.svg#launch"></use></svg></div>
                     </div>
                   `)}
