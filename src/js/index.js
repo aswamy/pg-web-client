@@ -38,6 +38,8 @@ function createTabMenuElement() {
     let tabElement = null;
     if(event.detail.tabType == 'SQL Query') {
       tabElement = document.createElement('sql-query-tab');
+    } else if(event.detail.tabType == 'SQL Table') {
+      tabElement = document.createElement('sql-table-tab');
     } else {
       return;
     }

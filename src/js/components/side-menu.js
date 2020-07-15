@@ -1,6 +1,6 @@
 import { LitElement, css, html } from 'lit-element';
 import { classMap } from 'lit-html/directives/class-map';
-import { copyToClipboard } from './clipboard.util.js';
+import { copyToClipboard } from '../utils/clipboard.util.js';
 
 import { CONNECTION_API } from '../services/connection_service.js';
 
@@ -54,17 +54,36 @@ class SideMenu extends LitElement {
         coordinates: [e.clientX, e.clientY],
         options: [
           {
-            title: 'Copy table name',
-            select: () => copyToClipboard(table, 'Table name has been copied to your clipboard')
+            title: 'Operations',
+            items: [
+              {
+                title: 'View Table',
+                select: () => {
+                  document.querySelector('tab-menu').createTab('SQL Table', { schema, table });
+                }
+              },
+              {
+                title: 'Backup Table',
+                disabled: true
+              }
+            ]
           },
           {
-            title: 'Copy table path',
-            select: () => copyToClipboard(`${schema}.${table}`, 'Table path has been copied to your clipboard')
-          },
-          {
-            title: 'Backup table',
-            select: () => {},
-            disabled: true
+            title: 'Copy...',
+            items: [
+              {
+                title: 'Table Name',
+                select: () => copyToClipboard(table, `Copied '${table}' to your clipboard`)
+              },
+              {
+                title: 'Table Path',
+                select: () => copyToClipboard(`${schema}.${table}`, `Copied '${schema}.${table}' to your clipboard`)
+              },
+              {
+                title: 'SELECT * FROM',
+                select: () => copyToClipboard(`SELECT * FROM ${schema}.${table};`, `Copied 'SELECT * FROM ${schema}.${table};' to your clipboard`)
+              },
+            ]
           }
         ]
       }

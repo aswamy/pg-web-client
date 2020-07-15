@@ -21,9 +21,16 @@ class ContextMenu extends LitElement {
   }
 
   firstUpdated() {
+    // Dismiss the context menu if clicked anywhere
     window.addEventListener('click', (e) => {
       e.preventDefault();
       this.dismissContextMenu();
+      return false;
+    });
+    // Don't dimiss the context menu if the click is on the menu
+    this.shadowRoot.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
       return false;
     });
   }
@@ -46,17 +53,18 @@ class ContextMenu extends LitElement {
     this.requestUpdate();
   }
 
-  selectMenuItem(e, option) {
+  selectMenuItem(e, item) {
     e.preventDefault();
-    if(Boolean(option.disabled)) {
+    if(Boolean(item.disabled)) {
       e.stopPropagation();
       return false;
     }
-    option.select && option.select();
+    item.select && item.select();
+    this.dismissContextMenu();
   }
 
   render() {
-    if(!this.showContextMenu) {
+    if(!(this.showContextMenu && this.contextMenuOptions.length)) {
       return null;
     }
 
@@ -65,15 +73,22 @@ class ContextMenu extends LitElement {
       top: this.showCoordinates[1],
       left: this.showCoordinates[0]
     })}>
-      <ul class="context-menu__items">
-        ${this.contextMenuOptions.map(option =>
-          html`<li
-            @click=${(e) => this.selectMenuItem(e, option)}
-            class="context-menu__item">
-            <a ?disabled=${Boolean(option.disabled)} class="context-menu__link">${option.title}</a>
-          </li>`
-        )}
-      </ul>
+      ${this.contextMenuOptions.map(section =>
+        html`
+        <section class="context-menu__section">
+          ${section.title ? html`<p class="context-menu__section-title">${section.title}</p>`: null}
+          <ul class="context-menu__items">
+            ${section.items.map(item =>
+              html`<li
+                @click=${(e) => this.selectMenuItem(e, item)}
+                class="context-menu__item">
+                <a ?disabled=${Boolean(item.disabled)} class="context-menu__link">${item.title}</a>
+              </li>`
+            )}
+          </ul>
+        </section>
+        `
+      )}
     </nav>
     `;
   }
@@ -85,11 +100,22 @@ class ContextMenu extends LitElement {
       z-index: 9999;
       padding: 6px 0;
       width: auto;
+      min-width: 200px;
       background-color: #fff;
       border: solid 1px var(--alternate-highlight-color-dark);
       box-shadow: 1px 1px 2px var(--alternate-highlight-color-dark);
       font-size: 14px;
       user-select: none;
+    }
+    .context-menu__section:not(:last-child) {
+      margin-bottom: 10px;
+    }
+    .context-menu__section-title {
+      color: var(--main-highlight-color);
+      font-size: .75em;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin: 5px;
     }
     .context-menu__items {
       list-style: none;

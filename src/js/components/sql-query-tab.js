@@ -1,8 +1,7 @@
 import { LitElement, html, css } from 'lit-element';
 import hotkeys from 'hotkeys-js';
 
-import { renderSqlTable } from './html-template-util.js';
-import { copyToClipboard } from './clipboard.util.js';
+import { copyToClipboard } from '../utils/clipboard.util.js';
 import { CONNECTION_API, ConnectionService } from '../services/connection_service.js';
 import HistoryService from '../services/history_service.js';
 
@@ -42,7 +41,6 @@ class SqlQueryTab extends LitElement {
      * 2) If a previous query exists, load it up
      */
     if(changedProperties.has('isVisible') && this.isVisible) {
-      
       console.debug(`Tab #${this.tabId} is visible`);
       
       let editor = this.shadowRoot.querySelector('.sqlQueryTabEditor');
@@ -187,20 +185,12 @@ class SqlQueryTab extends LitElement {
   }
 
   render() {
-
     if(!this.isVisible) {
       hotkeys.unbind('*');
       return html``;
     }
 
-    let resultsTable = null;
-
-    if(this._sqlResult) {
-      resultsTable = renderSqlTable(this._sqlResult);
-    }
-
     return html`
-      
       ${this.externalStyles}
 
       <div class="sqlQueryTabWrapper">
@@ -234,8 +224,7 @@ class SqlQueryTab extends LitElement {
         <div class="sqlResizableContent">
           <textarea ?disabled=${!this.sessionId} spellcheck="false" @click="${this._focusTopTextArea.bind(this, true)}" class="sqlQueryTabEditor"></textarea>
           <div @click="${this._focusTopTextArea.bind(this, false)}" class="sqlQueryTabResults" readonly>
-            ${this._sqlError ? html`<div class="sqlQueryTabResultsErrorMessage">${this._sqlError}</div>` : null}
-            ${resultsTable}
+            <sql-query-table .sqlResult=${this._sqlResult} .sqlError=${this._sqlError} />
           </div>
         </div>
         <div class="sqlQueryTabResultsMeta">${this._sqlResult ? html`<strong>Records:</strong> ${this._sqlResult.rows.length}` : null }</div>
@@ -355,21 +344,6 @@ class SqlQueryTab extends LitElement {
         margin-top: 10px;
         overflow: auto;
         position: relative;
-      }
-      .sqlQueryTabResultsMessage {
-        position: sticky;
-        top: 0;
-        text-align: right;
-      }
-      .sqlQueryTabResults td, .sqlQueryTabResults th {
-        white-space: nowrap;
-        max-width: 300px;
-        text-overflow: ellipsis;
-        overflow: hidden;
-      }
-      .sqlQueryTabResultsErrorMessage {
-        margin: 0.75rem;
-        display: inline-block;
       }
       .sqlQueryTabWrapper {
         width: 100%;

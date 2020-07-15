@@ -68,3 +68,11 @@ tab-menu {
   height: calc(100% - 45px);
   flex-grow: 1;
 }
+
+/**
+* Third-party CSS modifications
+*/
+body > div > .notification {
+  font-size: 12px;
+  font-family: 'Courier New', Courier, monospace;
+}

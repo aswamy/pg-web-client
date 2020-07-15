@@ -26,9 +26,15 @@ class TabMenu extends LitElement {
   createTab(tabType, params) {
     const tabId = new Date().getTime();
     
+    let tabName = tabType;
+
+    if(tabType == 'SQL Table') {
+      tabName = `${params.schema}.${params.table}`;
+    }
+
     this.tabs = [...this.tabs, {
       id: tabId,
-      name: tabType
+      name: tabName
     }];
 
     this.dispatchEvent(new CustomEvent('new-tab', {
