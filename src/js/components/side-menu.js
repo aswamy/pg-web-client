@@ -121,7 +121,7 @@ class SideMenu extends LitElement {
     }
   }
 
-  _onTableClick(schemaName, tableName) {
+  onTableClick(schemaName, tableName) {
 
     if(this.selectedSchemaAndTable
       && this.selectedSchemaAndTable.schema == schemaName
@@ -173,7 +173,7 @@ class SideMenu extends LitElement {
                               this.selectedSchemaMap[schemaName][subcategory] ?
                               this.schemaMap[schemaName][subcategory].map(subcategoryName => html`
                                 <li>
-                                  <a @click="${() => subcategory == 'table' ? this._onTableClick(schemaName, subcategoryName) : null }"
+                                  <a @click="${() => subcategory == 'table' ? this.onTableClick(schemaName, subcategoryName) : null }"
                                   class=${classMap({ "is-active": this.selectedSchemaAndTable && this.selectedSchemaAndTable.schema == schemaName && this.selectedSchemaAndTable.table == subcategoryName, "menuItemLink": true, "hasContextMenuTable": subcategory == 'table' })}
                                   @contextmenu=${(e) => this._tableContextMenu(e, schemaName, subcategoryName)}
                                   .title=${subcategoryName}>

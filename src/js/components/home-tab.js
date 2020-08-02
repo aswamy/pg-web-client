@@ -35,10 +35,9 @@ class HomeTab extends LitElement {
             <h1 class="title">${this.selectedSchema}</h1>
             <h2 class="subtitle">${this.selectedTable}</h2>
             <div class="table-container">
-              <table class="table is-striped is-narrow is-bordered">
+              <table class="table is-striped is-narrow is-bordered columnTable">
                 <thead>
                   <tr>
-                    <th>Constraint</th>
                     <th>Column Name</th>
                     <th>Data Type</th>
                     <th>Default Value</th>
@@ -49,7 +48,6 @@ class HomeTab extends LitElement {
                   ${this.tableDataToDisplay.columns.map(columnData =>
                     html`
                       <tr>
-                        <td>${columnData.constraint_type}</td>
                         <td>${columnData.column_name}</td>
                         <td>${columnData.data_type == 'character varying' && columnData.max_length ? `${columnData.data_type}(${columnData.max_length})` : columnData.data_type}</td>
                         <td>${columnData.default_value}</td>
@@ -60,10 +58,155 @@ class HomeTab extends LitElement {
                 </tbody>
               </table>
             </div>
-          ` : null
+            <p class="title is-4 mt-6">Constraints</p>
+            ${this.renderConstraintTable()}
+          `:
+          html `
+            <div><em>Select a table to display its meta-data</em></div>
+          `
         }
       </div>
     `;
+  }
+
+  renderConstraintTable() {
+    return html`
+      <div class="table-container">
+        <table class="constraintTable">
+          ${
+            Object.entries(this.groupConstraintsByConstraintName(this.tableDataToDisplay.primaryKeys)).map(([constraintName, constraints]) => {
+              return html`
+                <tbody>
+                  ${constraints.map((constraint, index) => {
+                    let constraintNameCell = null;
+
+                    if(index == 0) {
+                      constraintNameCell = html`
+                        <td class="constraintTypeColumn" rowspan=${constraints.length}>
+                          <div>PRIMARY KEY</div>
+                          <div style="font-size: small"><em>${constraintName}</em></div>
+                        </td>
+                      `;
+                    }
+                    
+                    return html`
+                      <tr>
+                        ${constraintNameCell}
+                        <td class="constraintColumnName" colspan=2>
+                          ${constraint.column_name}
+                        </td>
+                      </tr>
+                    `;
+                  })}
+                </tbody>
+              `;
+            })
+          }
+          ${
+            Object.entries(this.groupConstraintsByConstraintName(this.tableDataToDisplay.foreignKeys)).map(([constraintName, constraints]) => {
+              return html`
+                <tbody>
+                  ${constraints.map((constraint, index) => {
+                    let constraintNameCell = null;
+                    if(index == 0) {
+                      constraintNameCell = html`
+                        <td class="constraintTypeColumn" rowspan=${constraints.length}>
+                          <div>FOREIGN KEY</div>
+                          <div style="font-size: small"><em>${constraintName}</em></div>
+                        </td>
+                      `;
+                    }
+                    return html`
+                      <tr>
+                        ${constraintNameCell}
+                        <td class="constraintColumnName">
+                          ${constraint.column_name}
+                        </td>
+                        <td class="foreignColumnName">
+                          <a @click="${() => this.dispatchEvent(new CustomEvent('navigate-schema-table', { detail: { schema: constraint.foreign_table_schema, table: constraint.foreign_table_name } }))}">${`${constraint.foreign_table_schema}.${constraint.foreign_table_name} (${constraint.foreign_column_name})`}</a>
+                        </td>
+                      </tr>
+                    `;
+                  })}
+                </tbody>
+              `;
+            })
+          }
+          ${
+            Object.entries(this.groupConstraintsByConstraintName(this.tableDataToDisplay.uniqueConstraints)).map(([constraintName, constraints]) => {
+              return html`
+                <tbody>
+                  ${constraints.map((constraint, index) => {
+                    let constraintNameCell = null;
+                    if(index == 0) {
+                      constraintNameCell = html`
+                        <td class="constraintTypeColumn" rowspan=${constraints.length}>
+                          <div>UNIQUE</div>
+                          <div style="font-size: small"><em>${constraintName}</em></div>
+                        </td>
+                      `;
+                    }
+                    return html`
+                      <tr>
+                        ${constraintNameCell}
+                        <td class="constraintColumnName" colspan=2>
+                          ${constraint.column_name}
+                        </td>
+                      </tr>
+                    `;
+                  })}
+                </tbody>
+              `;
+            })
+          }
+          ${
+            Object.entries(this.groupConstraintsByConstraintName(this.tableDataToDisplay.checkConstraints)).map(([constraintName, constraints]) => {
+              return html`
+                <tbody>
+                  ${constraints.map((constraint, index) => {
+                    let constraintNameCell = null;
+                    let constraintClause = null;
+
+                    if(index == 0) {
+                      constraintNameCell = html`
+                        <td class="constraintTypeColumn" rowspan=${constraints.length}>
+                          <div>CHECK</div>
+                          <div style="font-size: small"><em>${constraintName}</em></div>
+                        </td>
+                      `;
+                      constraintClause = html`
+                        <td class="checkClauseColumn" rowspan=${constraints.length}>
+                          ${constraint.check_clause}
+                        </td>
+                      `;
+                    }
+                    return html`
+                      <tr>
+                        ${constraintNameCell}
+                        <td class="constraintColumnName">
+                          ${constraint.column_name}
+                        </td>
+                        ${constraintClause}
+                      </tr>
+                    `;
+                  })}
+                </tbody>
+              `;
+            })
+          }
+        </table>
+      </div>
+    `;
+  }
+
+  groupConstraintsByConstraintName(constraints) {
+    return constraints.reduce((accumulator, constraint) => {
+      if(!(constraint.constraint_name in accumulator)) {
+        accumulator[constraint.constraint_name] = [];
+      }
+      accumulator[constraint.constraint_name].push(constraint);
+      return accumulator;
+    }, {});
   }
 
   async updated(changedProperties) {
@@ -92,10 +235,29 @@ class HomeTab extends LitElement {
         border: 1px solid var(--alternate-highlight-color-dark);
         padding: 0.75rem;
         width: 100%;
+        overflow-y: auto;
       }
       table {
         white-space: nowrap;
         font-size: 0.9rem;
+      }
+      .constraintTable tbody:not(:last-child) {
+        border-bottom: 1px solid var(--alternate-highlight-color-dark);
+      }
+      .constraintTable .constraintTypeColumn {
+        padding: 0px 20px 10px 0px;
+        min-width: 200px;
+        width: 200px;
+      }
+      .constraintTable .constraintColumnName {
+        padding: 0px 20px 10px 0px;
+        min-width: 200px;
+        width: 200px;
+      }
+      .constraintTable .foreignColumnName {
+        padding: 0px 20px 10px 0px;
+        min-width: 200px;
+        width: 200px;
       }
     `;
   }

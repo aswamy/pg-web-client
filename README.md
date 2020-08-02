@@ -15,7 +15,7 @@ Complete|Priority|Description
 :x:|A|Show all records for a SQL Table
 :x:|A|Visualize Table and relations in a diagram
 :heavy_check_mark:|A|Show meta-information about tables
-:x:|B|Show each constraint and how it relates to other tables in the meta-information page
+:heavy_check_mark:|B|Show each constraint and how it relates to other tables in the meta-information page
 :heavy_check_mark:|B|Allow user to open multiple SQL tabs
 :x:|B|Paginate results of SQL queries
 :x:|B|Set/Restore Backups

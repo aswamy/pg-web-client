@@ -87,6 +87,7 @@ class SqlTableTab extends LitElement {
         overflow: auto;
         width: 100%;
         font-size: 12px;
+        border: 1px solid var(--alternate-highlight-color-dark);
       }
     `;
   }

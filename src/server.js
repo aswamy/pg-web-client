@@ -94,10 +94,22 @@ app.get('/api/connections/:id/schemas/:schema_name/tables/:table_name', async fu
       AND table_name = '${table}'
   `);
 
-  const constraintQueryResult = await client.query(`
-    SELECT
+  const primaryKeyConstraintQueryResult = await client.query(`
+    SELECT DISTINCT
       tc.constraint_name,
-      tc.constraint_type,
+      kcu.column_name
+    FROM
+      information_schema.table_constraints tc
+      JOIN information_schema.key_column_usage kcu ON tc.constraint_name = kcu.constraint_name AND tc.table_schema = kcu.table_schema
+    WHERE
+      tc.constraint_type = 'PRIMARY KEY'
+      AND tc.table_schema = '${schema}'
+      AND tc.table_name = '${table}'
+  `);
+
+  const foreignKeyConstraintQueryResult = await client.query(`
+    SELECT DISTINCT
+      tc.constraint_name,
       kcu.column_name,
       ccu.table_schema AS foreign_table_schema,
       ccu.table_name AS foreign_table_name,
@@ -106,45 +118,53 @@ app.get('/api/connections/:id/schemas/:schema_name/tables/:table_name', async fu
       information_schema.table_constraints tc
       JOIN information_schema.key_column_usage kcu ON tc.constraint_name = kcu.constraint_name AND tc.table_schema = kcu.table_schema
       JOIN information_schema.constraint_column_usage AS ccu ON ccu.constraint_name = tc.constraint_name AND ccu.table_schema = tc.table_schema
-      WHERE
-      tc.table_schema = '${schema}'
+    WHERE
+      constraint_type = 'FOREIGN KEY'
+      AND tc.table_schema = '${schema}'
       AND tc.table_name = '${table}'
   `);
 
-  let columnSorter = (columnA, columnB) => columnA.column_name.localeCompare(columnB.column_name);
+  const uniqueConstraintQueryResult = await client.query(`
+    SELECT DISTINCT
+      tc.constraint_name,
+      kcu.column_name
+    FROM
+      information_schema.table_constraints tc
+      JOIN information_schema.key_column_usage kcu ON tc.constraint_name = kcu.constraint_name AND tc.table_schema = kcu.table_schema
+    WHERE
+      tc.constraint_type = 'UNIQUE'
+      AND tc.table_schema = '${schema}'
+      AND tc.table_name = '${table}'
+  `);
+
+  const checkConstraintQueryResult = await client.query(`
+    SELECT DISTINCT
+      ccu.constraint_name,
+      ccu.column_name,
+      cc.check_clause
+    FROM
+      information_schema.constraint_column_usage ccu
+      JOIN information_schema.check_constraints cc ON cc.constraint_name = ccu.constraint_name
+    WHERE
+      ccu.table_schema = '${schema}'
+      AND ccu.table_name = '${table}'
+  `);
 
   let result = columnQueryResult.rows
     .map(columnData => {
       let { is_nullable, ...result } = columnData;
       result.is_nullable = is_nullable == 'YES';
 
-      let constraint = constraintQueryResult.rows.find(constraintData => constraintData.column_name == columnData.column_name);
-
-      result.constraint_type = constraint ? constraint.constraint_type : null;
-
       return result;
     })
-    .sort((columnA, columnB) => {
-      if(columnA.constraint_type == columnB.constraint_type) {
-        return columnA.column_name.localeCompare(columnB.column_name);
-      }
-
-      if(columnA.constraint_type == 'PRIMARY KEY') return -1;
-      if(columnB.constraint_type == 'PRIMARY KEY') return 1;
-      
-      if(columnA.constraint_type == 'FOREIGN KEY') return -1;
-      if(columnB.constraint_type == 'FOREIGN KEY') return 1;
-
-      if(columnA.constraint_type == 'UNIQUE') return -1;
-      if(columnB.constraint_type == 'UNIQUE') return 1;
-
-      return 0;
-    });
+    .sort((columnA, columnB) => columnA.column_name.localeCompare(columnB.column_name));
 
   res.send({
     columns: result,
-    primaryKeys: constraintQueryResult.rows.filter(column => column.constraint_type == 'PRIMARY KEY'),
-    foreignKeys: constraintQueryResult.rows.filter(column => column.constraint_type == 'FOREIGN KEY'),
+    primaryKeys: primaryKeyConstraintQueryResult.rows,
+    foreignKeys: foreignKeyConstraintQueryResult.rows,
+    uniqueConstraints: uniqueConstraintQueryResult.rows,
+    checkConstraints: checkConstraintQueryResult.rows
   });
 });
 

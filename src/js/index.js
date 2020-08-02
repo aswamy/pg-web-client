@@ -9,6 +9,10 @@ async function main() {
   let sideMenu = createSideMenuElement(connection, homeTab, contextMenu);
   let tabMenu = createTabMenuElement();
 
+  homeTab.addEventListener('navigate-schema-table', (event) => {
+    sideMenu.onTableClick(event.detail.schema, event.detail.table);
+  });
+
   document.querySelector('#sidebarWrapper').appendChild(sideMenu);
   document.querySelector('#mainContent > div').appendChild(tabMenu);
   document.querySelector('#mainContent > div').appendChild(homeTab);
