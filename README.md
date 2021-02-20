@@ -1,6 +1,8 @@
 # Introduction
 
-This is a light weight browser-based PostgreSQL client.
+This is a light weight browser-based PostgreSQL client made using LitElement and lit-html.
+
+Currently only functional in Chromium-based browsers.
 
 # Features
 
@@ -43,3 +45,5 @@ npm start
 ```
 
 Open `localhost:3000`
+
+NOTE: The credentials for the database are hard-coded at the moment (in `connection_service.js`). The example database and data can be found in the `examples` directory.

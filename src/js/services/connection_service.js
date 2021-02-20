@@ -5,7 +5,7 @@ class ConnectionService {
   constructor() {
     // TODO: let the user set these credentials
     this.host = '127.0.0.1';
-    this.database = 'pg_web_client_test_db';
+    this.database = 'pg_web_client_demo';
     this.user = 'pg_web_client';
     this.password = 'pg_web_client';
     
