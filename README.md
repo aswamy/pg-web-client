@@ -4,6 +4,24 @@ This is a light weight browser-based PostgreSQL client made using LitElement and
 
 Currently only functional in Chromium-based browsers.
 
+# Showcase
+
+### Home Page
+<img src="/docs/images/home_page.png" width="40%" height="40%">
+
+### Run SQL Query
+<img src="/docs/images/run_sql_query.png" width="40%" height="40%">
+
+### View Table
+<img src="/docs/images/view_table.png" width="40%" height="40%">
+
+### Show History
+<img src="/docs/images/show_history.png" width="40%" height="40%">
+
+### Show Menu
+<img src="/docs/images/show_menu.png" width="40%" height="40%">
+
+
 # Features
 
 List of [incomplete] features I would like the application to have to be useful.
